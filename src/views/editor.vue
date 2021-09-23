@@ -1,12 +1,11 @@
 <template>
-  <div class="editor">
+  <div class="editor" :style="editorStyle">
     <div class="editor-header">
       <van-button size="mini" @click="onBack">返回</van-button>
       MyNote
       <van-button size="mini" @click="onBack">保存</van-button>
     </div>
     <v-md-editor v-model="text"></v-md-editor>
-    <div class="keyboard" :style="keyboardStyle"></div>
     <!-- <div class="custom-toolbar">
     <van-button size="mini" @click="addText">可爱</van-button>
   </div> -->
@@ -20,7 +19,7 @@ const router = useRouter()
 
 const text = ref('## 在此编辑您的内容')
 const toolbar = ref(null)
-const keyboardStyle = ref('')
+const editorStyle = ref('')
 
 // 目前仅实现了在文末加文字的功能...（需要知道光标位置？）
 const addText = (txt = '### 这是一个**可爱的**三级标题哦！') => {
@@ -40,7 +39,9 @@ const scroll = () => {
       document.documentElement.clientHeight - window.innerHeight
     }px; top: auto`
     const paddingBottom = toolbar.value.offsetHeight //px
-    keyboardStyle.value = `height: ${paddingBottom}`
+    editorStyle.value = `height: calc(100vh - ${paddingBottom}px - ${
+      document.documentElement.clientHeight - window.innerHeight
+    }px); padding-bottom: 0`
   }, 300)
 }
 
@@ -52,18 +53,20 @@ onMounted(() => {
   const tt = document.querySelector('textarea')
   if (tt !== null) {
     tt.addEventListener('focus', scroll)
-    scroll()
+    // scroll()
   }
   toolbar.value = document.querySelector('.v-md-editor__toolbar')
 })
 </script>
 
 <style lang="scss" scoped>
+$padding-bottom: 8rem;
+
 .editor {
   display: flex;
   flex-direction: column;
-  padding-bottom: 8rem;
-  height: calc(100vh - 8rem - 1rem);
+  padding-bottom: $padding-bottom;
+  height: calc(100vh - ($padding-bottom + (41rem / 16)));
   .editor-header {
     display: flex;
     justify-content: space-between;
@@ -93,7 +96,7 @@ onMounted(() => {
     .v-md-editor__toolbar {
       // flex-direction: column;
       position: absolute;
-      bottom: 2rem;
+      bottom: $padding-bottom;
       background: #ddd;
       z-index: 100;
       &-left {
