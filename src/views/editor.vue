@@ -35,13 +35,12 @@ const scroll = () => {
     addText('innerHeight' + window.innerHeight)
     addText('clientHeight' + document.documentElement.clientHeight)
     // addText('scrollHeight' + document.body.scrollHeight)
-    toolbar.value.style = `bottom: ${
+    const keyboardHeight =
       document.documentElement.clientHeight - window.innerHeight
-    }px; top: auto`
-    const paddingBottom = toolbar.value.offsetHeight //px
-    editorStyle.value = `height: calc(100vh - ${paddingBottom}px - ${
-      document.documentElement.clientHeight - window.innerHeight
-    }px); padding-bottom: 0`
+    const toobarHeight = toolbar.value.offsetHeight //px
+    const paddingBottom = 8
+    toolbar.value.style = `bottom: calc(${keyboardHeight}px + ${paddingBottom}rem); top: auto`
+    editorStyle.value = `height: calc(100vh - ${toobarHeight}px - ${keyboardHeight}px - ${paddingBottom}rem); padding-bottom: ${paddingBottom}rem`
   }, 300)
 }
 
@@ -71,6 +70,7 @@ $padding-bottom: 8rem;
     display: flex;
     justify-content: space-between;
     padding: 0.5rem 0.1rem;
+    position: sticky;
   }
   .v-md-editor {
     flex: 1;
