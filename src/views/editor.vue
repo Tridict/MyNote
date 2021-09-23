@@ -6,6 +6,7 @@
       <van-button size="mini" @click="onBack">保存</van-button>
     </div>
     <v-md-editor v-model="text"></v-md-editor>
+    <div class="keyboard" :style="keyboardStyle"></div>
     <!-- <div class="custom-toolbar">
     <van-button size="mini" @click="addText">可爱</van-button>
   </div> -->
@@ -19,6 +20,7 @@ const router = useRouter()
 
 const text = ref('## 在此编辑您的内容')
 const toolbar = ref(null)
+const keyboardStyle = ref('')
 
 // 目前仅实现了在文末加文字的功能...（需要知道光标位置？）
 const addText = (txt = '### 这是一个**可爱的**三级标题哦！') => {
@@ -38,7 +40,7 @@ const scroll = () => {
       document.documentElement.clientHeight - window.innerHeight
     }px; top: auto`
     const paddingBottom = toolbar.value.offsetHeight //px
-    addText('paddingBottom' + paddingBottom)
+    keyboardStyle.value = `height: ${paddingBottom}`
   }, 300)
 }
 
@@ -70,6 +72,10 @@ onMounted(() => {
   .v-md-editor {
     flex: 1;
   }
+  .keyboard {
+    width: 100%;
+    height: 0;
+  }
 }
 
 @media screen and (max-width: 900px) {
@@ -85,14 +91,25 @@ onMounted(() => {
   :deep().v-md-editor__right-area {
     flex-direction: column-reverse;
     .v-md-editor__toolbar {
-      flex-direction: column;
-      position: fixed;
+      // flex-direction: column;
+      position: absolute;
       bottom: 2rem;
       background: #ddd;
       z-index: 100;
-      &-right {
-        margin-left: 0;
+      &-left {
+        flex: 1;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        overflow-y: hidden;
+        scrollbar-width: none; /* Firefox */
+        -ms-overflow-style: none; /* IE 10+ */
+        &::-webkit-scrollbar {
+          display: none; /* Chrome Safari */
+        }
       }
+      // &-right {
+      //   margin-left: 0;
+      // }
     }
     .v-md-editor__main {
       flex-direction: column-reverse;
