@@ -21,13 +21,12 @@ import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 const router = useRouter()
 const isKeyboard = ref(false)
-const text = ref('## 在此编辑您的内容1')
+const text = ref('## 在此编辑您的内容2')
 const toolbar = ref(null)
 
 // 目前仅实现了在文末加文字的功能...（需要知道光标位置？）
 const addText = (txt = '### 这是一个**可爱的**三级标题哦！') => {
-  // text.value += '\n' + txt
-  text.value += '\n'
+  text.value += '\n' + txt
 }
 
 const scrollTo = () => {
@@ -38,11 +37,11 @@ const scrollTo = () => {
 
 const onScroll = () => {
   if (isKeyboard.value) {
+    const value = document.documentElement.clientHeight - window.innerHeight
+    addText('clientHeight-innerHeight ' + value)
+    addText('scrollTop', document.documentElement.scrollTop)
     toolbar.value.style = `bottom: ${
-      300 +
-      document.documentElement.clientHeight -
-      window.innerHeight -
-      document.documentElement.scrollTop
+      300 + value - document.documentElement.scrollTop
     }px`
     // toolbar.value.style = `bottom: 0`
   }
