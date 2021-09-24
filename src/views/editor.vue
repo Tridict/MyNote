@@ -21,7 +21,7 @@ import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 const router = useRouter()
 const isKeyboard = ref(false)
-const text = ref('## 在此编辑您的内容2')
+const text = ref('## 在此编辑您的内容3')
 const toolbar = ref(null)
 
 // 目前仅实现了在文末加文字的功能...（需要知道光标位置？）
@@ -39,9 +39,9 @@ const onScroll = () => {
   if (isKeyboard.value) {
     const value = document.documentElement.clientHeight - window.innerHeight
     addText('clientHeight-innerHeight ' + value)
-    addText('scrollTop', document.documentElement.scrollTop)
+    addText('scrollTop ' + document.documentElement.scrollTop)
     toolbar.value.style = `bottom: ${
-      300 + value - document.documentElement.scrollTop
+      value - document.documentElement.scrollTop
     }px`
     // toolbar.value.style = `bottom: 0`
   }
@@ -50,6 +50,11 @@ const onScroll = () => {
 const onKeyboard = () => {
   setTimeout(() => {
     isKeyboard.value = true
+    toolbar.value.style = `bottom: ${
+      document.documentElement.clientHeight -
+      window.innerHeight -
+      document.documentElement.scrollTop
+    }px`
     // 呈现吸底的toolbar
     // editor.value.appendChild(toolbar.value)
     // editor.value.style = `height: calc(100vh - ${
