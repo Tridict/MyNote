@@ -100,6 +100,7 @@ $padding-bottom: 0rem;
   // padding-bottom: $padding-bottom + constant(safe-area-inset-bottom); // 兼容ios<11.2
   // padding-bottom: $padding-bottom + env(safe-area-inset-bottom);
   height: calc(100vh - $padding-bottom);
+  background: yellow;
   .editor-header {
     display: flex;
     justify-content: space-between;
