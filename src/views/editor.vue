@@ -35,12 +35,15 @@ const scroll = () => {
     addText('innerHeight' + window.innerHeight)
     addText('clientHeight' + document.documentElement.clientHeight)
     // addText('scrollHeight' + document.body.scrollHeight)
-    const keyboardHeight =
-      document.documentElement.clientHeight - window.innerHeight
-    const toobarHeight = toolbar.value.offsetHeight //px
-    const paddingBottom = 8
-    toolbar.value.style = `bottom: calc(${keyboardHeight}px + ${paddingBottom}rem); top: auto`
-    editorStyle.value = `height: calc(100vh - ${toobarHeight}px - ${keyboardHeight}px - ${paddingBottom}rem); padding-bottom: ${paddingBottom}rem`
+    // 呈现吸底的toolbar
+    toolbar.value.style = ''
+
+    // 可编辑区域变窄（toolbar没有使用position的情况，依然在编辑区底部...）
+    // const keyboardHeight =
+    //   document.documentElement.clientHeight - window.innerHeight
+    // const toobarHeight = toolbar.value.offsetHeight //px
+    // const paddingBottom = 8
+    // editorStyle.value = `height: calc(100vh - ${toobarHeight}px - ${keyboardHeight}px - ${paddingBottom}rem); padding-bottom: ${paddingBottom}rem`
   }, 300)
 }
 
@@ -55,22 +58,29 @@ onMounted(() => {
     // scroll()
   }
   toolbar.value = document.querySelector('.v-md-editor__toolbar')
+  toolbar.value.style = 'display: none'
 })
 </script>
 
 <style lang="scss" scoped>
-$padding-bottom: 8rem;
+// $padding-bottom: 0;
 
 .editor {
   display: flex;
   flex-direction: column;
-  padding-bottom: $padding-bottom;
-  height: calc(100vh - ($padding-bottom + (41rem / 16)));
+  // padding-bottom: $padding-bottom;
+  // padding-bottom: $padding-bottom + constant(safe-area-inset-bottom); // 兼容ios<11.2
+  // padding-bottom: $padding-bottom + env(safe-area-inset-bottom);
+  // height: calc(100vh - ($padding-bottom + (41rem / 16)));
   .editor-header {
     display: flex;
     justify-content: space-between;
     padding: 0.5rem 0.1rem;
     position: sticky;
+    position: -webkit-sticky;
+    top: 0;
+    background: $bg;
+    z-index: 100;
   }
   .v-md-editor {
     flex: 1;
@@ -95,9 +105,9 @@ $padding-bottom: 8rem;
     flex-direction: column-reverse;
     .v-md-editor__toolbar {
       // flex-direction: column;
-      position: absolute;
-      bottom: $padding-bottom;
       background: #ddd;
+      position: fixed;
+      bottom: 0;
       z-index: 100;
       &-left {
         flex: 1;
@@ -121,9 +131,13 @@ $padding-bottom: 8rem;
         border-top: 1px solid #ddd;
         border-right: 0;
       }
-      .v-md-editor__editor-wrapper,
       .scrollbar {
-        height: 30vh;
+        height: 37.1vh;
+        padding: 2rem;
+      }
+      .vuepress-markdown-body:not(.custom),
+      .v-md-textarea-editor textarea {
+        padding: 0;
       }
     }
   }
