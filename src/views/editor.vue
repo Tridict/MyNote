@@ -1,5 +1,5 @@
 <template>
-  <div class="editor" :style="editorStyle">
+  <div class="editor">
     <div class="editor-header">
       <van-button size="mini" @click="onBack">返回</van-button>
       MyNote
@@ -19,32 +19,27 @@ const router = useRouter()
 
 const text = ref('## 在此编辑您的内容')
 const toolbar = ref(null)
-const editorStyle = ref('')
+const toolbar2 = ref(null)
 
 // 目前仅实现了在文末加文字的功能...（需要知道光标位置？）
-const addText = (txt = '### 这是一个**可爱的**三级标题哦！') => {
-  text.value += '\n' + txt
+// const addText = (txt = '### 这是一个**可爱的**三级标题哦！') => {
+//   text.value += '\n' + txt
+// }
+
+const onKeyboard = () => {
+  setTimeout(() => {
+    toolbar.value.style = 'display:none'
+    // 呈现吸底的toolbar
+    document.body.appendChild(toolbar2.value)
+    toolbar2.value.scrollIntoView()
+  }, 300)
 }
 
-// 似乎innerHeight的值是有效的，可以参考这个来控制fixed定位元素的top值？
-// 底部空白区————在内容底部...安全...
-
-const scroll = () => {
+const offKeyboard = () => {
   setTimeout(() => {
-    // document.body.scrollTop = document.body.scrollHeight
-    addText('innerHeight' + window.innerHeight)
-    addText('clientHeight' + document.documentElement.clientHeight)
-    // addText('scrollHeight' + document.body.scrollHeight)
-    // 呈现吸底的toolbar
     toolbar.value.style = ''
-    document.body.appendChild(toolbar.value)
-
-    // 可编辑区域变窄（toolbar没有使用position的情况，依然在编辑区底部...）
-    // const keyboardHeight =
-    //   document.documentElement.clientHeight - window.innerHeight
-    // const toobarHeight = toolbar.value.offsetHeight //px
-    // const paddingBottom = 8
-    // editorStyle.value = `height: calc(100vh - ${toobarHeight}px - ${keyboardHeight}px - ${paddingBottom}rem); padding-bottom: ${paddingBottom}rem`
+    // 移除吸底的toolbar
+    toolbar2.value = document.body.removeChild(toolbar2.value)
   }, 300)
 }
 
@@ -55,12 +50,12 @@ const onBack = () => {
 onMounted(() => {
   const tt = document.querySelector('textarea')
   if (tt !== null) {
-    tt.addEventListener('focus', scroll)
-    // scroll()
+    tt.addEventListener('focus', onKeyboard)
+    tt.addEventListener('blur', offKeyboard)
+    // onKeyboard()
   }
   toolbar.value = document.querySelector('.v-md-editor__toolbar')
-  toolbar.value.style = 'display: none'
-  toolbar.value = toolbar.value.cloneNode(true)
+  toolbar2.value = toolbar.value.cloneNode(true)
 })
 </script>
 
