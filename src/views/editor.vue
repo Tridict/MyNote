@@ -31,12 +31,13 @@ const addText = (txt = '### 这是一个**可爱的**三级标题哦！') => {
 
 const scroll = () => {
   setTimeout(() => {
-    document.body.scrollTop = document.body.scrollHeight
+    // document.body.scrollTop = document.body.scrollHeight
     addText('innerHeight' + window.innerHeight)
     addText('clientHeight' + document.documentElement.clientHeight)
     // addText('scrollHeight' + document.body.scrollHeight)
     // 呈现吸底的toolbar
     toolbar.value.style = ''
+    document.body.appendChild(toolbar.value)
 
     // 可编辑区域变窄（toolbar没有使用position的情况，依然在编辑区底部...）
     // const keyboardHeight =
@@ -59,6 +60,7 @@ onMounted(() => {
   }
   toolbar.value = document.querySelector('.v-md-editor__toolbar')
   toolbar.value.style = 'display: none'
+  toolbar.value = toolbar.value.cloneNode(true)
 })
 </script>
 
@@ -139,6 +141,34 @@ onMounted(() => {
       .v-md-textarea-editor textarea {
         padding: 0;
       }
+    }
+  }
+}
+</style>
+
+<style lang="scss">
+body {
+  @media screen and (max-width: 900px) {
+    .v-md-editor__toolbar {
+      // flex-direction: column;
+      background: #ddd;
+      position: fixed;
+      bottom: 0;
+      z-index: 100;
+      &-left {
+        flex: 1;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        overflow-y: hidden;
+        scrollbar-width: none; /* Firefox */
+        -ms-overflow-style: none; /* IE 10+ */
+        &::-webkit-scrollbar {
+          display: none; /* Chrome Safari */
+        }
+      }
+      // &-right {
+      //   margin-left: 0;
+      // }
     }
   }
 }
