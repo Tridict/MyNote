@@ -3,10 +3,13 @@
 </template>
 
 <style lang="scss">
-body {
-  background: red;
-  #app {
-    background: blue;
+html {
+  background: #000;
+  body {
+    background: red;
+    #app {
+      background: blue;
+    }
   }
 }
 </style>
