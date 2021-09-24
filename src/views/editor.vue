@@ -1,5 +1,5 @@
 <template>
-  <div class="editor">
+  <div class="editor" ref="editor">
     <div class="editor-header">
       <van-button size="mini" @click="onBack">返回</van-button>
       <van-button size="mini" @click="scrollTo">go</van-button>
@@ -22,8 +22,9 @@ import { useRouter } from 'vue-router'
 const router = useRouter()
 
 const text = ref('## 在此编辑您的内容')
+const editor = ref(null)
 const toolbar = ref(null)
-const toolbar2 = ref(null)
+// const toolbar2 = ref(null)
 
 // 目前仅实现了在文末加文字的功能...（需要知道光标位置？）
 const addText = (txt = '### 这是一个**可爱的**三级标题哦！') => {
@@ -39,18 +40,21 @@ const scrollTo = () => {
 
 const onKeyboard = () => {
   setTimeout(() => {
-    toolbar.value.style = 'display:none'
+    // toolbar.value.style = 'display:none'
     // 呈现吸底的toolbar
-    document.body.appendChild(toolbar2.value)
-    scrollTo()
+    // editor.value.appendChild(toolbar.value)
+    editor.value.style = `height: calc(100vh - ${
+      document.documentElement.clientHeight - window.innerHeight
+    }px)`
   }, 300)
 }
 
 const offKeyboard = () => {
   setTimeout(() => {
-    toolbar.value.style = ''
+    // toolbar.value.style = ''
     // 移除吸底的toolbar
-    toolbar2.value = document.body.removeChild(toolbar2.value)
+    // toolbar2.value = document.body.removeChild(toolbar2.value)
+    editor.value.style = ''
   }, 300)
 }
 
@@ -66,7 +70,8 @@ onMounted(() => {
     // onKeyboard()
   }
   toolbar.value = document.querySelector('.v-md-editor__toolbar')
-  toolbar2.value = toolbar.value.cloneNode(true)
+  editor.value.appendChild(toolbar.value)
+  // toolbar2.value = toolbar.value.cloneNode(true)
 })
 </script>
 
@@ -79,7 +84,7 @@ $padding-bottom: 0rem;
   // padding-bottom: $padding-bottom;
   // padding-bottom: $padding-bottom + constant(safe-area-inset-bottom); // 兼容ios<11.2
   // padding-bottom: $padding-bottom + env(safe-area-inset-bottom);
-  height: calc(100vh - ($padding-bottom + (41rem / 16)));
+  height: calc(100vh - $padding-bottom);
   .editor-header {
     display: flex;
     justify-content: space-between;
@@ -171,7 +176,7 @@ body {
     .v-md-editor__toolbar {
       // flex-direction: column;
       background: #ddd;
-      position: fixed;
+      // position: fixed;
       bottom: 0;
       z-index: 100;
       &-left {
