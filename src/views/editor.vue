@@ -7,7 +7,9 @@
       <van-button size="mini" @click="addText">get</van-button>
       <van-button size="mini" @click="onBack">保存</van-button>
     </div>
-    <v-md-editor v-model="text"></v-md-editor>
+    <div class="v-md-editor-wrap">
+      <v-md-editor v-model="text"></v-md-editor>
+    </div>
     <!-- <div class="custom-toolbar">
     <van-button size="mini" @click="addText">可爱</van-button>
   </div> -->
@@ -69,7 +71,7 @@ onMounted(() => {
 </script>
 
 <style lang="scss" scoped>
-// $padding-bottom: 0;
+$padding-bottom: 0rem;
 
 .editor {
   display: flex;
@@ -77,7 +79,7 @@ onMounted(() => {
   // padding-bottom: $padding-bottom;
   // padding-bottom: $padding-bottom + constant(safe-area-inset-bottom); // 兼容ios<11.2
   // padding-bottom: $padding-bottom + env(safe-area-inset-bottom);
-  // height: calc(100vh - ($padding-bottom + (41rem / 16)));
+  height: calc(100vh - ($padding-bottom + (41rem / 16)));
   .editor-header {
     display: flex;
     justify-content: space-between;
@@ -88,8 +90,17 @@ onMounted(() => {
     background: $bg;
     z-index: 100;
   }
-  .v-md-editor {
+  .v-md-editor-wrap {
     flex: 1;
+    position: relative;
+    .v-md-editor {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      overflow: auto;
+    }
   }
   .keyboard {
     width: 100%;
@@ -137,10 +148,14 @@ onMounted(() => {
         border-top: 1px solid #ddd;
         border-right: 0;
       }
-      .scrollbar {
-        height: 37.1vh;
+      .v-md-editor__editor-wrapper,
+      .v-md-editor__preview-wrapper {
         padding: 2rem;
       }
+      // .scrollbar {
+      // height: 37.1vh;
+      // padding: 2rem;
+      // }
       .vuepress-markdown-body:not(.custom),
       .v-md-textarea-editor textarea {
         padding: 0;
