@@ -38,11 +38,14 @@ const scrollTo = () => {
 const onScroll = () => {
   if (isKeyboard.value) {
     const value = document.documentElement.clientHeight - window.innerHeight
-    addText('clientHeight-innerHeight ' + value)
-    addText('scrollTop ' + document.documentElement.scrollTop)
-    toolbar.value.style = `bottom: ${
-      value - document.documentElement.scrollTop
-    }px`
+    // addText('clientHeight-innerHeight ' + value)
+    // addText('scrollTop ' + document.documentElement.scrollTop)
+    // toolbar.value.style = `bottom: ${
+    //   value - document.documentElement.scrollTop
+    // }px; top: auto`
+    toolbar.value.style = `top: ${
+      window.innerHeight + document.documentElement.scrollTop
+    }px; bottom: auto;`
     // toolbar.value.style = `bottom: 0`
   }
 }
@@ -50,11 +53,14 @@ const onScroll = () => {
 const onKeyboard = () => {
   setTimeout(() => {
     isKeyboard.value = true
-    toolbar.value.style = `bottom: ${
-      document.documentElement.clientHeight -
-      window.innerHeight -
-      document.documentElement.scrollTop
-    }px`
+    // toolbar.value.style = `bottom: ${
+    //   document.documentElement.clientHeight -
+    //   window.innerHeight -
+    //   document.documentElement.scrollTop
+    // }px; top: auto;`
+    toolbar.value.style = `top: ${
+      window.innerHeight + document.documentElement.scrollTop
+    }px; bottom: auto;`
     // 呈现吸底的toolbar
     // editor.value.appendChild(toolbar.value)
     // editor.value.style = `height: calc(100vh - ${
