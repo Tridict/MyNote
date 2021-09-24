@@ -46,6 +46,7 @@ const onScroll = () => {
     toolbar.value.style = `top: ${window.innerHeight - 41}px; bottom: auto;`
     // toolbar.value.style = `bottom: 0`
   }
+  document.body.style = `height: ${window.innerHeight}px;`
 }
 
 const onKeyboard = () => {
