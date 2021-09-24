@@ -2,7 +2,9 @@
   <div class="editor">
     <div class="editor-header">
       <van-button size="mini" @click="onBack">返回</van-button>
+      <van-button size="mini" @click="scrollTo">go</van-button>
       MyNote
+      <van-button size="mini" @click="addText">get</van-button>
       <van-button size="mini" @click="onBack">保存</van-button>
     </div>
     <v-md-editor v-model="text"></v-md-editor>
@@ -22,16 +24,23 @@ const toolbar = ref(null)
 const toolbar2 = ref(null)
 
 // 目前仅实现了在文末加文字的功能...（需要知道光标位置？）
-// const addText = (txt = '### 这是一个**可爱的**三级标题哦！') => {
-//   text.value += '\n' + txt
-// }
+const addText = (txt = '### 这是一个**可爱的**三级标题哦！') => {
+  // text.value += '\n' + txt
+  text.value += '\n' + document.documentElement.scrollTop
+}
+
+const scrollTo = () => {
+  // toolbar2.value.scrollIntoView()  // 实验中的功能，不起效果
+  // window.scrollTo(0, currentTop)
+  document.documentElement.scrollTop = 0
+}
 
 const onKeyboard = () => {
   setTimeout(() => {
     toolbar.value.style = 'display:none'
     // 呈现吸底的toolbar
     document.body.appendChild(toolbar2.value)
-    toolbar2.value.scrollIntoView()
+    scrollTo()
   }, 300)
 }
 
