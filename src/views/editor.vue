@@ -38,9 +38,10 @@ const scrollTo = () => {
 
 const onScroll = () => {
   if (isKeyboard.value) {
-    toolbar.value.style = `bottom: ${
-      document.documentElement.clientHeight - window.innerHeight + 10
-    }px`
+    // toolbar.value.style = `bottom: ${
+    //   document.documentElement.clientHeight - window.innerHeight + 10
+    // }px`
+    toolbar.value.style = `bottom: 0`
   }
 }
 
