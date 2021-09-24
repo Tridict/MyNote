@@ -1,5 +1,5 @@
 <template>
-  <div class="editor" ref="editor">
+  <div class="editor">
     <div class="editor-header">
       <van-button size="mini" @click="onBack">返回</van-button>
       <van-button size="mini" @click="scrollTo">go</van-button>
@@ -20,16 +20,14 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 const router = useRouter()
-
-const text = ref('## 在此编辑您的内容')
-const editor = ref(null)
+const isKeyboard = ref(false)
+const text = ref('## 在此编辑您的内容1')
 const toolbar = ref(null)
-// const toolbar2 = ref(null)
 
 // 目前仅实现了在文末加文字的功能...（需要知道光标位置？）
 const addText = (txt = '### 这是一个**可爱的**三级标题哦！') => {
   // text.value += '\n' + txt
-  text.value += '\n' + document.documentElement.scrollTop
+  text.value += '\n'
 }
 
 const scrollTo = () => {
@@ -38,23 +36,30 @@ const scrollTo = () => {
   document.documentElement.scrollTop = 0
 }
 
+const onScroll = () => {
+  if (isKeyboard.value) {
+    toolbar.value.style = `bottom: ${
+      document.documentElement.clientHeight - window.innerHeight + 10
+    }px`
+  }
+}
+
 const onKeyboard = () => {
   setTimeout(() => {
-    // toolbar.value.style = 'display:none'
+    isKeyboard.value = true
     // 呈现吸底的toolbar
     // editor.value.appendChild(toolbar.value)
-    editor.value.style = `height: calc(100vh - ${
-      document.documentElement.clientHeight - window.innerHeight
-    }px)`
+    // editor.value.style = `height: calc(100vh - ${
+    //   document.documentElement.clientHeight - window.innerHeight
+    // }px)`
   }, 300)
 }
 
 const offKeyboard = () => {
   setTimeout(() => {
-    // toolbar.value.style = ''
-    // 移除吸底的toolbar
-    // toolbar2.value = document.body.removeChild(toolbar2.value)
-    editor.value.style = ''
+    // 隐藏toolbar
+    toolbar.value.style = 'display: none'
+    isKeyboard.value = false
   }, 300)
 }
 
@@ -67,11 +72,11 @@ onMounted(() => {
   if (tt !== null) {
     tt.addEventListener('focus', onKeyboard)
     tt.addEventListener('blur', offKeyboard)
-    // onKeyboard()
   }
+  window.addEventListener('scroll', onScroll)
   toolbar.value = document.querySelector('.v-md-editor__toolbar')
-  editor.value.appendChild(toolbar.value)
-  // toolbar2.value = toolbar.value.cloneNode(true)
+  // 隐藏toolbar
+  toolbar.value.style = 'display: none'
 })
 </script>
 
@@ -129,6 +134,7 @@ $padding-bottom: 0rem;
       // flex-direction: column;
       background: #ddd;
       position: fixed;
+      // display: none;
       bottom: 0;
       z-index: 100;
       &-left {
