@@ -44,16 +44,31 @@ const router = useRouter()
 const text = ref('## 在此编辑您的内容')
 const isKeyboard = ref(false)
 const toolbar = ref(null)
-const isEdit = ref(false)
+const isEdit = ref(true)
 const display = reactive({
-  editor: 'none',
-  preview: 'block'
+  editor: 'block',
+  preview: 'none'
 })
 
 // 目前仅实现了在文末加文字的功能...（需要知道光标位置？）
 // const addText = (txt = '### 这是一个**可爱的**三级标题哦！') => {
 //   text.value += '\n' + txt
 // }
+
+// 官方提供的例子
+// selected 为当前选中的文本
+// editor.insert((selected) => {
+//   const prefix = '**'
+//   const suffix = '**'
+//   const content = selected || '粗体'
+
+//   return {
+//     // 要插入的文本
+//     text: `${prefix}${content}${suffix}`,
+//     // 插入后要选中的文本
+//     selected: content
+//   }
+// })
 
 // const scrollTo = () => {
 //   // toolbar2.value.scrollIntoView()  // 实验中的功能，不起效果
@@ -80,8 +95,8 @@ const onScroll = () => {
     // toolbar.value.style = `bottom: ${
     //   value - document.documentElement.scrollTop
     // }px; top: auto`
-    toolbar.value.style = `top: ${window.innerHeight - 41}px; bottom: auto;`
-    // toolbar.value.style = `bottom: 0`
+    // toolbar.value.style = `top: ${window.innerHeight - 41}px; bottom: auto;`
+    toolbar.value.style = `bottom: 0`
   }
   document.body.style = `height: ${window.innerHeight}px;`
 }
@@ -94,7 +109,7 @@ const onKeyboard = () => {
     //   window.innerHeight -
     //   document.documentElement.scrollTop
     // }px; top: auto;`
-    toolbar.value.style = `top: ${window.innerHeight - 41}px; bottom: auto;`
+    // toolbar.value.style = `top: ${window.innerHeight - 41}px; bottom: auto;`
     // 呈现吸底的toolbar
     // editor.value.appendChild(toolbar.value)
     // editor.value.style = `height: calc(100vh - ${
@@ -106,7 +121,7 @@ const onKeyboard = () => {
 const offKeyboard = () => {
   setTimeout(() => {
     // 隐藏toolbar
-    toolbar.value.style = 'display: none'
+    // toolbar.value.style = 'display: none'
     isKeyboard.value = false
   }, 300)
 }
@@ -132,7 +147,7 @@ onMounted(() => {
   window.addEventListener('scroll', onScroll)
   toolbar.value = document.querySelector('.v-md-editor__toolbar')
   // 隐藏toolbar
-  toolbar.value.style = 'display: none'
+  // toolbar.value.style = 'display: none'
 })
 </script>
 
@@ -191,6 +206,7 @@ $padding-bottom: 0rem;
       // flex-direction: column;
       background: #ddd;
       position: fixed;
+      display: v-bind('display.editor');
       // display: none;
       bottom: 0;
       z-index: 100;
@@ -223,7 +239,7 @@ $padding-bottom: 0rem;
       }
       .v-md-editor__editor-wrapper,
       .v-md-editor__preview-wrapper {
-        padding: 2rem;
+        // padding: 2rem;
         flex: 1;
       }
       // .scrollbar {
