@@ -1,6 +1,39 @@
 <template>
-  <router-view />
+  <router-view v-slot="{ Component, route }">
+    <transition :name="route.meta.transition">
+      <component :is="Component" />
+    </transition>
+  </router-view>
 </template>
+
+<script setup lang="ts"></script>
+
+<style lang="scss" scoped>
+.slide-left-enter-active,
+.slide-right-enter-active {
+  transition: all 0.3s ease-out;
+}
+
+.slide-left-enter-from,
+.slide-right-leave-to {
+  transform: translateX(100vw);
+  opacity: 0;
+}
+
+// 正常
+.slide-right-leave-from,
+.slide-left-leave-from,
+.slide-left-enter-to,
+.slide-right-enter-to {
+  opacity: 1;
+}
+
+.slide-left-leave-to,
+.slide-right-enter-from {
+  transform: translateX(-100vw);
+  opacity: 0;
+}
+</style>
 
 <style lang="scss">
 html {
@@ -8,8 +41,8 @@ html {
   position: relative;
   body {
     background: rgb(23, 190, 73);
-    height: 100vh;
     #app {
+      height: 100vh;
       background: blue;
     }
   }

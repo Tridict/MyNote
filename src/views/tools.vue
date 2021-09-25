@@ -1,45 +1,64 @@
 <template>
-  <div class="notes-wrap">
-    <Titlebar title="实用工具" />
-    <main>
+  <Page title="实用工具" current="tools">
+    <template #main>
       <van-cell
-        title="公众号文章收藏"
-        size="large"
-        label="将微信公众号文章收藏到 LeanCloud 数据库。仅文字。"
-        @click="onImport"
-      />
-      <van-cell
-        title="自定义网站收藏"
-        size="large"
-        label="将自定义网站文章收藏到 LeanCloud 数据库。仅文字。"
-      />
-      <van-cell
-        title="导出为 Markdown"
-        size="large"
-        label="将选中的笔记导出为一个 Markdown 文件。"
-      />
-      <van-cell
-        title="从 Json 导入"
-        size="large"
-        label="从以前导出的 Json 文件中导入笔记。"
-      />
-    </main>
-    <Tabbar current="tools" />
-  </div>
+        v-for="(tool, idx) in toolList"
+        :key="idx"
+        @click="onEdit(tool.action)"
+      >
+        <template #title>
+          <div class="tool-title">{{ tool.title }}</div>
+          <div class="tool-abstract">{{ tool.abstract }}</div>
+        </template>
+      </van-cell>
+    </template>
+  </Page>
 </template>
 
 <script setup lang="ts">
-import Tabbar from '@/components/tabbar.vue'
-import Titlebar from '@/components/titlebar.vue'
+import Page from '@/components/page.vue'
 import { Toast } from 'vant'
 
-const onImport = () => {
-  Toast('该功能尚未实现，敬请期待')
+interface tool {
+  title: string
+  abstract: string
+  action: string
+}
+
+const toolList: tool[] = [
+  {
+    title: '公众号文章收藏',
+    abstract: '将微信公众号文章收藏到 LeanCloud 数据库。仅文字。',
+    action: 'onImport'
+  },
+  {
+    title: '自定义网站收藏',
+    abstract: '将自定义网站文章收藏到 LeanCloud 数据库。仅文字。',
+    action: 'onImport'
+  },
+  {
+    title: '导出为 Markdown',
+    abstract: '将选中的笔记导出为一个 Markdown 文件。',
+    action: 'onExport'
+  },
+  {
+    title: '从 Json 导入',
+    abstract: '从以前导出的 Json 文件中导入笔记。',
+    action: 'onImport'
+  }
+]
+
+const onEdit = (action: string) => {
+  Toast(action + '功能尚未实现，敬请期待')
 }
 </script>
 
 <style lang="scss" scoped>
-.notes-wrap {
-  height: 100vh;
+.tool-title {
+  font-weight: 700;
+  color: $text-black;
 }
+// .tool-abstract {
+//   padding: 0.5rem 0;
+// }
 </style>

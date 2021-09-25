@@ -1,24 +1,30 @@
 import {
   Button,
-  Form,
-  Field,
   Cell,
   CellGroup,
+  Form,
+  Field,
+  Icon,
   Switch,
+  NavBar,
   Tabbar,
   TabbarItem,
+  Tag,
   Toast
 } from 'vant'
 
 const pluginsVant = [
   Button,
-  Form,
-  Field,
   Cell,
   CellGroup,
+  Form,
+  Field,
+  Icon,
   Switch,
+  NavBar,
   Tabbar,
   TabbarItem,
+  Tag,
   Toast
 ]
 

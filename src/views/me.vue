@@ -1,7 +1,6 @@
 <template>
-  <div class="me-wrap">
-    <Titlebar :title="username" />
-    <main>
+  <Page :title="username" current="me">
+    <template #main>
       <van-cell-group title="深色模式">
         <van-field center label="跟随系统">
           <template #right-icon>
@@ -14,23 +13,15 @@
           </template>
         </van-field>
       </van-cell-group>
-    </main>
-    <Tabbar current="me" />
-  </div>
+    </template>
+  </Page>
 </template>
 
 <script setup lang="ts">
-import Tabbar from '@/components/tabbar.vue'
-import Titlebar from '@/components/titlebar.vue'
+import Page from '@/components/page.vue'
 import { ref } from '@vue/reactivity'
 
 const username = 'cora'
 const isAutoDark = ref(false)
 const isDark = ref(false)
 </script>
-
-<style lang="scss" scoped>
-.me-wrap {
-  height: 100vh;
-}
-</style>

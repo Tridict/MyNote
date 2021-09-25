@@ -1,43 +1,80 @@
 <template>
   <div class="editor">
-    <div class="editor-header">
-      <van-button size="mini" @click="onBack">返回</van-button>
-      <van-button size="mini" @click="scrollTo">go</van-button>
-      MyNote
-      <van-button size="mini" @click="addText">get</van-button>
-      <van-button size="mini" @click="onBack">保存</van-button>
-    </div>
+    <van-nav-bar title="MyNote">
+      <template #left>
+        <van-button size="mini" @click="onBack">
+          <van-icon
+            size="18"
+            name="https://api.iconify.design/mdi:chevron-left.svg"
+          />
+        </van-button>
+      </template>
+      <template #right>
+        <van-button size="mini" @click="showPreview">
+          <van-icon
+            v-if="isEdit"
+            size="18"
+            name="https://api.iconify.design/mdi:file-eye-outline.svg"
+          />
+          <van-icon
+            v-else
+            size="18"
+            name="https://api.iconify.design/mdi:note-edit-outline.svg"
+          />
+        </van-button>
+        <van-button size="mini" @click="onSave">
+          <van-icon
+            size="18"
+            name="https://api.iconify.design/mdi:content-save-outline.svg"
+          />
+          <!-- <van-icon size="16" name="https://api.iconify.design/cil:save.svg" /> -->
+        </van-button>
+      </template>
+    </van-nav-bar>
     <div class="v-md-editor-wrap">
       <v-md-editor v-model="text"></v-md-editor>
     </div>
-    <!-- <div class="custom-toolbar">
-    <van-button size="mini" @click="addText">可爱</van-button>
-  </div> -->
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, reactive } from 'vue'
 import { useRouter } from 'vue-router'
 const router = useRouter()
+const text = ref('## 在此编辑您的内容')
 const isKeyboard = ref(false)
-const text = ref('## 在此编辑您的内容4')
 const toolbar = ref(null)
+const isEdit = ref(false)
+const display = reactive({
+  editor: 'none',
+  preview: 'block'
+})
 
 // 目前仅实现了在文末加文字的功能...（需要知道光标位置？）
-const addText = (txt = '### 这是一个**可爱的**三级标题哦！') => {
-  text.value += '\n' + txt
-}
+// const addText = (txt = '### 这是一个**可爱的**三级标题哦！') => {
+//   text.value += '\n' + txt
+// }
 
-const scrollTo = () => {
-  // toolbar2.value.scrollIntoView()  // 实验中的功能，不起效果
-  // window.scrollTo(0, currentTop)
-  document.documentElement.scrollTop = 0
+// const scrollTo = () => {
+//   // toolbar2.value.scrollIntoView()  // 实验中的功能，不起效果
+//   // window.scrollTo(0, currentTop)
+//   document.documentElement.scrollTop = 0
+// }
+
+const showPreview = () => {
+  isEdit.value = !isEdit.value
+  if (isEdit.value) {
+    display.editor = 'block'
+    display.preview = 'none'
+  } else {
+    display.editor = 'none'
+    display.preview = 'block'
+  }
 }
 
 const onScroll = () => {
   if (isKeyboard.value) {
-    const value = document.documentElement.clientHeight - window.innerHeight
+    // const value = document.documentElement.clientHeight - window.innerHeight
     // addText('clientHeight-innerHeight ' + value)
     // addText('scrollTop ' + document.documentElement.scrollTop)
     // toolbar.value.style = `bottom: ${
@@ -75,7 +112,15 @@ const offKeyboard = () => {
 }
 
 const onBack = () => {
+  // 判断是否保存草稿
   router.push('/notes')
+  // notes更新数据
+}
+
+const onSave = () => {
+  // 保存
+  // 然后返回
+  onBack()
 }
 
 onMounted(() => {
@@ -102,16 +147,16 @@ $padding-bottom: 0rem;
   // padding-bottom: $padding-bottom + env(safe-area-inset-bottom);
   height: calc(100vh - $padding-bottom);
   background: yellow;
-  .editor-header {
-    display: flex;
-    justify-content: space-between;
-    padding: 0.5rem 0.1rem;
-    position: sticky;
-    position: -webkit-sticky;
-    top: 0;
-    background: $bg;
-    z-index: 100;
-  }
+  // .editor-header {
+  //   display: flex;
+  //   justify-content: space-between;
+  //   padding: 0.5rem 0.1rem;
+  //   position: sticky;
+  //   position: -webkit-sticky;
+  //   top: 0;
+  //   background: $bg;
+  //   z-index: 100;
+  // }
   .v-md-editor-wrap {
     flex: 1;
     position: relative;
@@ -160,9 +205,10 @@ $padding-bottom: 0rem;
           display: none; /* Chrome Safari */
         }
       }
-      // &-right {
-      //   margin-left: 0;
-      // }
+      &-right {
+        // margin-left: 0;
+        display: none;
+      }
     }
     .v-md-editor__main {
       flex-direction: column-reverse;
@@ -170,10 +216,15 @@ $padding-bottom: 0rem;
       .v-md-editor__editor-wrapper {
         border-top: 1px solid #ddd;
         border-right: 0;
+        display: v-bind('display.editor');
+      }
+      .v-md-editor__preview-wrapper {
+        display: v-bind('display.preview');
       }
       .v-md-editor__editor-wrapper,
       .v-md-editor__preview-wrapper {
         padding: 2rem;
+        flex: 1;
       }
       // .scrollbar {
       // height: 37.1vh;
@@ -189,29 +240,27 @@ $padding-bottom: 0rem;
 </style>
 
 <style lang="scss">
-body {
-  @media screen and (max-width: 900px) {
-    .v-md-editor__toolbar {
-      // flex-direction: column;
-      background: #ddd;
-      // position: fixed;
-      bottom: 0;
-      z-index: 100;
-      &-left {
-        flex: 1;
-        flex-wrap: nowrap;
-        overflow-x: auto;
-        overflow-y: hidden;
-        scrollbar-width: none; /* Firefox */
-        -ms-overflow-style: none; /* IE 10+ */
-        &::-webkit-scrollbar {
-          display: none; /* Chrome Safari */
-        }
+@media screen and (max-width: 900px) {
+  .v-md-editor__toolbar {
+    // flex-direction: column;
+    background: #ddd;
+    // position: fixed;
+    bottom: 0;
+    z-index: 100;
+    &-left {
+      flex: 1;
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      overflow-y: hidden;
+      scrollbar-width: none; /* Firefox */
+      -ms-overflow-style: none; /* IE 10+ */
+      &::-webkit-scrollbar {
+        display: none; /* Chrome Safari */
       }
-      // &-right {
-      //   margin-left: 0;
-      // }
     }
+    // &-right {
+    //   margin-left: 0;
+    // }
   }
 }
 </style>
