@@ -84,10 +84,11 @@ router.beforeEach((to, from) => {
 
 // 控制路由切换的动画
 router.afterEach((to, from) => {
+  if (!from.meta.order) return
   const transitionName =
-    from.meta.order < to.meta.order ? 'slide-left' : 'slide-right'
-  from.meta.transitionName = transitionName
-  to.meta.transitionName = transitionName
+    from.meta.order < to.meta.order ? 'van-slide-left' : 'van-slide-right'
+  from.meta.transition = transitionName
+  to.meta.transition = transitionName
   console.log(transitionName)
 })
 

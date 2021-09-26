@@ -9,30 +9,30 @@
 <script setup lang="ts"></script>
 
 <style lang="scss" scoped>
-.slide-left-enter-active,
-.slide-right-enter-active {
-  transition: all 0.3s ease-out;
-}
+// .slide-left-enter-active,
+// .slide-right-enter-active {
+//   transition: all 1s ease-out;
+// }
 
-.slide-left-enter-from,
-.slide-right-leave-to {
-  transform: translateX(100vw);
-  opacity: 0;
-}
+// .slide-left-enter-from,
+// .slide-right-leave-to {
+//   transform: translateX(100vw);
+//   opacity: 0;
+// }
 
-// 正常
-.slide-right-leave-from,
-.slide-left-leave-from,
-.slide-left-enter-to,
-.slide-right-enter-to {
-  opacity: 1;
-}
+// // 正常
+// .slide-right-leave-from,
+// .slide-left-leave-from,
+// .slide-left-enter-to,
+// .slide-right-enter-to {
+//   opacity: 1;
+// }
 
-.slide-left-leave-to,
-.slide-right-enter-from {
-  transform: translateX(-100vw);
-  opacity: 0;
-}
+// .slide-left-leave-to,
+// .slide-right-enter-from {
+//   transform: translateX(-100vw);
+//   opacity: 0;
+// }
 </style>
 
 <style lang="scss">
@@ -43,7 +43,7 @@ html {
     background: rgb(23, 190, 73);
     #app {
       height: 100vh;
-      background: blue;
+      background: $bg;
     }
   }
   body,
