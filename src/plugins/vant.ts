@@ -1,31 +1,37 @@
 import {
+  ActionSheet,
   Button,
   Cell,
   CellGroup,
   Form,
   Field,
   Icon,
-  Switch,
   NavBar,
+  Notify,
+  Switch,
   Tabbar,
   TabbarItem,
   Tag,
-  Toast
+  Toast,
+  Uploader
 } from 'vant'
 
 const pluginsVant = [
+  ActionSheet,
   Button,
   Cell,
   CellGroup,
   Form,
   Field,
   Icon,
-  Switch,
   NavBar,
+  Notify,
+  Switch,
   Tabbar,
   TabbarItem,
   Tag,
-  Toast
+  Toast,
+  Uploader
 ]
 
 import { App } from 'vue'
