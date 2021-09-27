@@ -215,7 +215,10 @@ $padding-bottom: 0rem;
       // flex-direction: column;
       background: #ddd;
       position: fixed;
+      top: auto;
       bottom: 0;
+      padding-bottom: constant(safe-area-inset-bottom);
+      padding-bottom: env(safe-area-inset-bottom);
       z-index: 100;
       &-left {
         flex: 1;

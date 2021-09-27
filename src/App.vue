@@ -76,10 +76,10 @@
 
 <style lang="scss">
 html {
-  background: #000;
+  background: rgb(219, 43, 43);
   position: relative;
   body {
-    background: rgb(23, 190, 73);
+    background: $bg;
     #app {
       height: 100vh;
       background: $bg;
