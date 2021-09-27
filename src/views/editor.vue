@@ -4,51 +4,87 @@
       <template #left>
         <van-button size="mini" @click="onBack">
           <van-icon
-            size="18"
+            size="20"
             name="https://api.iconify.design/mdi:chevron-left.svg"
           />
         </van-button>
       </template>
       <template #right>
+        <van-button size="mini" @click="showMore = true">
+          <van-icon
+            size="20"
+            name="https://api.iconify.design/ph:list-bold.svg"
+          />
+        </van-button>
         <van-button size="mini" @click="showPreview">
           <van-icon
             v-if="isEdit"
-            size="18"
+            size="20"
             name="https://api.iconify.design/mdi:file-eye-outline.svg"
           />
           <van-icon
             v-else
-            size="18"
+            size="20"
             name="https://api.iconify.design/mdi:note-edit-outline.svg"
           />
         </van-button>
         <van-button size="mini" @click="onSave">
           <van-icon
-            size="18"
+            size="20"
             name="https://api.iconify.design/mdi:content-save-outline.svg"
           />
-          <!-- <van-icon size="16" name="https://api.iconify.design/cil:save.svg" /> -->
+          <!-- <van-icon size="18" name="https://api.iconify.design/cil:save.svg" /> -->
         </van-button>
       </template>
     </van-nav-bar>
     <div class="v-md-editor-wrap">
-      <v-md-editor v-model="text"></v-md-editor>
+      <v-md-editor v-model="text" :mode="mode"></v-md-editor>
     </div>
+    <van-action-sheet
+      v-model:show="showMore"
+      :actions="options"
+      cancel-text="取消"
+      close-on-click-action
+      safe-area-inset-bottom
+    />
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, reactive } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
+
+const useActionSheet = () => {
+  const showMore = ref(false)
+  const options = [
+    {
+      name: '导入笔记',
+      subname: '导入笔记将覆盖您当前输入的内容',
+      callback: onInput
+    },
+    { name: '导出笔记' }
+  ]
+  const onInput = () => {
+    console.log('导入笔记')
+  }
+
+  return {
+    showMore,
+    options
+  }
+}
+
+const { showMore, options } = useActionSheet()
+
 const router = useRouter()
+
+// type Mode = 'edit' | 'preview' | 'editable'
+// const mode = ref<Mode>('edit')
+const mode = ref('preview')
+
 const text = ref('## 在此编辑您的内容')
 const isKeyboard = ref(false)
 const toolbar = ref(null)
-const isEdit = ref(true)
-const display = reactive({
-  editor: 'block',
-  preview: 'none'
-})
 
 // 目前仅实现了在文末加文字的功能...（需要知道光标位置？）
 // const addText = (txt = '### 这是一个**可爱的**三级标题哦！') => {
@@ -76,15 +112,10 @@ const display = reactive({
 //   document.documentElement.scrollTop = 0
 // }
 
+const isEdit = computed(() => mode.value === 'edit')
+
 const showPreview = () => {
-  isEdit.value = !isEdit.value
-  if (isEdit.value) {
-    display.editor = 'block'
-    display.preview = 'none'
-  } else {
-    display.editor = 'none'
-    display.preview = 'block'
-  }
+  mode.value = mode.value === 'edit' ? 'preview' : 'edit'
 }
 
 const onScroll = () => {
@@ -98,7 +129,6 @@ const onScroll = () => {
     // toolbar.value.style = `top: ${window.innerHeight - 41}px; bottom: auto;`
     toolbar.value.style = `bottom: 0`
   }
-  document.body.style = `height: ${window.innerHeight}px;`
 }
 
 const onKeyboard = () => {
@@ -206,8 +236,6 @@ $padding-bottom: 0rem;
       // flex-direction: column;
       background: #ddd;
       position: fixed;
-      display: v-bind('display.editor');
-      // display: none;
       bottom: 0;
       z-index: 100;
       &-left {
@@ -232,10 +260,8 @@ $padding-bottom: 0rem;
       .v-md-editor__editor-wrapper {
         border-top: 1px solid #ddd;
         border-right: 0;
-        display: v-bind('display.editor');
       }
       .v-md-editor__preview-wrapper {
-        display: v-bind('display.preview');
       }
       .v-md-editor__editor-wrapper,
       .v-md-editor__preview-wrapper {
