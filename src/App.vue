@@ -9,28 +9,67 @@
 <script setup lang="ts"></script>
 
 <style lang="scss" scoped>
-// .slide-left-enter-active,
+.fade-enter-active,
+.fade-leave-active,
+.slide-left-enter-active,
+.slide-left-leave-active {
+  position: absolute;
+  width: 100%;
+  height: 100vh;
+}
+
+.fade-enter-active {
+  transition: all 0.4s ease-out;
+}
+.fade-leave-active {
+  z-index: 1;
+  // transition: all 0.7s cubic-bezier(1, 0.5, 0.8, 1);
+  transition: all 0.2s ease-in;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
+.slide-left-enter-active {
+  z-index: 1;
+  transition: all 0.4s ease-out;
+}
+.slide-left-leave-active {
+  // transition: all 0.7s cubic-bezier(1, 0.5, 0.8, 1);
+  transition: all 0.4s ease-out;
+}
+
+// 左滑时，进入的元素从右边来
+.slide-left-enter-from {
+  transform: translateX(100vw);
+  opacity: 0;
+}
+
+// 左滑时，离开的元素跑到左边
+.slide-left-leave-to {
+  transform: translateX(-100vw);
+  opacity: 0;
+}
+
+// 暂时没用上。。。
 // .slide-right-enter-active {
-//   transition: all 1s ease-out;
+//   z-index: 1;
+//   transition: all 0.4s ease-out;
+// }
+// .slide-right-leave-active {
+//   // transition: all 0.7s cubic-bezier(1, 0.5, 0.8, 1);
+//   transition: all 0.4s ease-out;
 // }
 
-// .slide-left-enter-from,
-// .slide-right-leave-to {
-//   transform: translateX(100vw);
+// .slide-right-enter-from {
+//   transform: translateX(-100vw);
 //   opacity: 0;
 // }
 
-// // 正常
-// .slide-right-leave-from,
-// .slide-left-leave-from,
-// .slide-left-enter-to,
-// .slide-right-enter-to {
-//   opacity: 1;
-// }
-
-// .slide-left-leave-to,
-// .slide-right-enter-from {
-//   transform: translateX(-100vw);
+// .slide-right-leave-to {
+//   transform: translateX(100vw);
 //   opacity: 0;
 // }
 </style>

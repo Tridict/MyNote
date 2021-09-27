@@ -2,7 +2,7 @@
   <div class="editor">
     <van-nav-bar title="MyNote">
       <template #left>
-        <van-button size="mini" @click="onBack">
+        <van-button size="small" @click="onBack">
           <van-icon
             size="20"
             name="https://api.iconify.design/mdi:chevron-left.svg"
@@ -10,13 +10,13 @@
         </van-button>
       </template>
       <template #right>
-        <van-button size="mini" @click="showMore = true">
+        <van-button size="small" @click="showMore = true">
           <van-icon
-            size="20"
-            name="https://api.iconify.design/ph:list-bold.svg"
+            size="16"
+            name="https://api.iconify.design/fa-solid:ellipsis-h.svg"
           />
         </van-button>
-        <van-button size="mini" @click="showPreview">
+        <van-button size="small" @click="showPreview">
           <van-icon
             v-if="isEdit"
             size="20"
@@ -28,7 +28,7 @@
             name="https://api.iconify.design/mdi:note-edit-outline.svg"
           />
         </van-button>
-        <van-button size="mini" @click="onSave">
+        <van-button size="small" @click="onSave">
           <van-icon
             size="20"
             name="https://api.iconify.design/mdi:content-save-outline.svg"
@@ -53,7 +53,7 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
-import useActionSheet from '@/utils/useActionSheet'
+import { useEditorOptions } from '@/utils/useActionSheet'
 
 const useMode = () => {
   // type Mode = 'edit' | 'preview' | 'editable'
@@ -125,7 +125,7 @@ const useKeyboard = () => {
 }
 
 const router = useRouter()
-const { showMore, options } = useActionSheet()
+const { showMore, options } = useEditorOptions()
 const { mode, isEdit, showPreview } = useMode()
 useKeyboard()
 
@@ -266,6 +266,10 @@ $padding-bottom: 0rem;
         padding: 0;
       }
     }
+  }
+  :deep().van-button--small {
+    width: var(--van-button-small-height);
+    margin: 0.1rem;
   }
 }
 </style>

@@ -35,6 +35,12 @@ $tab-bar-height: 3.125rem;
     overflow: auto;
     flex: 1;
     background-color: $bg;
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE 10+ */
+
+    ::-webkit-scrollbar {
+      display: none; /* Chrome Safari */
+    }
   }
 }
 </style>

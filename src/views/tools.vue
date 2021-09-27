@@ -17,7 +17,10 @@
 
 <script setup lang="ts">
 import Page from '@/components/page.vue'
-import { Toast } from 'vant'
+// import { Toast } from 'vant'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
 
 interface tool {
   title: string
@@ -49,7 +52,8 @@ const toolList: tool[] = [
 ]
 
 const onEdit = (action: string) => {
-  Toast(action + '功能尚未实现，敬请期待')
+  console.log(action + '功能尚未实现，敬请期待')
+  router.push('/tool-page')
 }
 </script>
 
