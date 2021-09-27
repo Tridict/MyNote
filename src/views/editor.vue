@@ -53,38 +53,83 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
+import useActionSheet from '@/utils/useActionSheet'
 
-const useActionSheet = () => {
-  const showMore = ref(false)
-  const options = [
-    {
-      name: '导入笔记',
-      subname: '导入笔记将覆盖您当前输入的内容',
-      callback: onInput
-    },
-    { name: '导出笔记' }
-  ]
-  const onInput = () => {
-    console.log('导入笔记')
+const useMode = () => {
+  // type Mode = 'edit' | 'preview' | 'editable'
+  // const mode = ref<Mode>('edit')
+  const mode = ref('edit')
+  const isEdit = computed(() => mode.value === 'edit')
+  const showPreview = () => {
+    mode.value = mode.value === 'edit' ? 'preview' : 'edit'
   }
 
-  return {
-    showMore,
-    options
-  }
+  return { mode, isEdit, showPreview }
 }
 
-const { showMore, options } = useActionSheet()
+const useKeyboard = () => {
+  const isKeyboard = ref(false)
+  const toolbar = ref(null) // html element?
+
+  const onScroll = () => {
+    if (isKeyboard.value) {
+      // const value = document.documentElement.clientHeight - window.innerHeight
+      // addText('clientHeight-innerHeight ' + value)
+      // addText('scrollTop ' + document.documentElement.scrollTop)
+      // toolbar.value.style = `bottom: ${
+      //   value - document.documentElement.scrollTop
+      // }px; top: auto`
+      // toolbar.value.style = `top: ${window.innerHeight - 41}px; bottom: auto;`
+      toolbar.value.style = `bottom: 0`
+    }
+  }
+
+  const onKeyboard = () => {
+    setTimeout(() => {
+      isKeyboard.value = true
+      // toolbar.value.style = `bottom: ${
+      //   document.documentElement.clientHeight -
+      //   window.innerHeight -
+      //   document.documentElement.scrollTop
+      // }px; top: auto;`
+      // toolbar.value.style = `top: ${window.innerHeight - 41}px; bottom: auto;`
+      // 呈现吸底的toolbar
+      // editor.value.appendChild(toolbar.value)
+      // editor.value.style = `height: calc(100vh - ${
+      //   document.documentElement.clientHeight - window.innerHeight
+      // }px)`
+    }, 300)
+  }
+
+  const offKeyboard = () => {
+    setTimeout(() => {
+      // 隐藏toolbar
+      // toolbar.value.style = 'display: none'
+      isKeyboard.value = false
+    }, 300)
+  }
+
+  onMounted(() => {
+    const tt = document.querySelector('textarea')
+    if (tt !== null) {
+      tt.addEventListener('focus', onKeyboard)
+      tt.addEventListener('blur', offKeyboard)
+    }
+    window.addEventListener('scroll', onScroll)
+    toolbar.value = document.querySelector('.v-md-editor__toolbar')
+    // 隐藏toolbar
+    // toolbar.value.style = 'display: none'
+  })
+
+  return { isKeyboard }
+}
 
 const router = useRouter()
-
-// type Mode = 'edit' | 'preview' | 'editable'
-// const mode = ref<Mode>('edit')
-const mode = ref('preview')
+const { showMore, options } = useActionSheet()
+const { mode, isEdit, showPreview } = useMode()
+useKeyboard()
 
 const text = ref('## 在此编辑您的内容')
-const isKeyboard = ref(false)
-const toolbar = ref(null)
 
 // 目前仅实现了在文末加文字的功能...（需要知道光标位置？）
 // const addText = (txt = '### 这是一个**可爱的**三级标题哦！') => {
@@ -112,50 +157,6 @@ const toolbar = ref(null)
 //   document.documentElement.scrollTop = 0
 // }
 
-const isEdit = computed(() => mode.value === 'edit')
-
-const showPreview = () => {
-  mode.value = mode.value === 'edit' ? 'preview' : 'edit'
-}
-
-const onScroll = () => {
-  if (isKeyboard.value) {
-    // const value = document.documentElement.clientHeight - window.innerHeight
-    // addText('clientHeight-innerHeight ' + value)
-    // addText('scrollTop ' + document.documentElement.scrollTop)
-    // toolbar.value.style = `bottom: ${
-    //   value - document.documentElement.scrollTop
-    // }px; top: auto`
-    // toolbar.value.style = `top: ${window.innerHeight - 41}px; bottom: auto;`
-    toolbar.value.style = `bottom: 0`
-  }
-}
-
-const onKeyboard = () => {
-  setTimeout(() => {
-    isKeyboard.value = true
-    // toolbar.value.style = `bottom: ${
-    //   document.documentElement.clientHeight -
-    //   window.innerHeight -
-    //   document.documentElement.scrollTop
-    // }px; top: auto;`
-    // toolbar.value.style = `top: ${window.innerHeight - 41}px; bottom: auto;`
-    // 呈现吸底的toolbar
-    // editor.value.appendChild(toolbar.value)
-    // editor.value.style = `height: calc(100vh - ${
-    //   document.documentElement.clientHeight - window.innerHeight
-    // }px)`
-  }, 300)
-}
-
-const offKeyboard = () => {
-  setTimeout(() => {
-    // 隐藏toolbar
-    // toolbar.value.style = 'display: none'
-    isKeyboard.value = false
-  }, 300)
-}
-
 const onBack = () => {
   // 判断是否保存草稿
   router.push('/notes')
@@ -167,18 +168,6 @@ const onSave = () => {
   // 然后返回
   onBack()
 }
-
-onMounted(() => {
-  const tt = document.querySelector('textarea')
-  if (tt !== null) {
-    tt.addEventListener('focus', onKeyboard)
-    tt.addEventListener('blur', offKeyboard)
-  }
-  window.addEventListener('scroll', onScroll)
-  toolbar.value = document.querySelector('.v-md-editor__toolbar')
-  // 隐藏toolbar
-  // toolbar.value.style = 'display: none'
-})
 </script>
 
 <style lang="scss" scoped>
