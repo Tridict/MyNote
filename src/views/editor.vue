@@ -181,16 +181,6 @@ $padding-bottom: 0rem;
   // padding-bottom: $padding-bottom + env(safe-area-inset-bottom);
   height: calc(100vh - $padding-bottom);
   background: yellow;
-  // .editor-header {
-  //   display: flex;
-  //   justify-content: space-between;
-  //   padding: 0.5rem 0.1rem;
-  //   position: sticky;
-  //   position: -webkit-sticky;
-  //   top: 0;
-  //   background: $bg;
-  //   z-index: 100;
-  // }
   .v-md-editor-wrap {
     flex: 1;
     position: relative;
@@ -270,32 +260,6 @@ $padding-bottom: 0rem;
   :deep().van-button--small {
     width: var(--van-button-small-height);
     margin: 0.1rem;
-  }
-}
-</style>
-
-<style lang="scss">
-@media screen and (max-width: 900px) {
-  .v-md-editor__toolbar {
-    // flex-direction: column;
-    background: #ddd;
-    // position: fixed;
-    bottom: 0;
-    z-index: 100;
-    &-left {
-      flex: 1;
-      flex-wrap: nowrap;
-      overflow-x: auto;
-      overflow-y: hidden;
-      scrollbar-width: none; /* Firefox */
-      -ms-overflow-style: none; /* IE 10+ */
-      &::-webkit-scrollbar {
-        display: none; /* Chrome Safari */
-      }
-    }
-    // &-right {
-    //   margin-left: 0;
-    // }
   }
 }
 </style>

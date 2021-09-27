@@ -7,7 +7,8 @@ const routes: Array<RouteRecordRaw> = [
     name: 'Home',
     component: Home,
     meta: {
-      order: 0
+      order: 0,
+      transition: 'fade'
     }
   },
   {
@@ -16,7 +17,28 @@ const routes: Array<RouteRecordRaw> = [
     component: () =>
       import(/* webpackChunkName: "login" */ '@/views/login.vue'),
     meta: {
-      order: 0
+      order: 0,
+      transition: 'fade'
+    }
+  },
+  {
+    path: '/upload',
+    name: 'Upload',
+    component: () =>
+      import(/* webpackChunkName: "main" */ '@/components/upload-box.vue'),
+    meta: {
+      order: 1,
+      transition: 'fade'
+    }
+  },
+  {
+    path: '/tool-page',
+    name: 'ToolPage',
+    component: () =>
+      import(/* webpackChunkName: "main" */ '@/components/toolpage.vue'),
+    meta: {
+      order: 1,
+      transition: 'slide-left'
     }
   },
   {
@@ -24,7 +46,8 @@ const routes: Array<RouteRecordRaw> = [
     name: 'Notes',
     component: () => import(/* webpackChunkName: "main" */ '@/views/notes.vue'),
     meta: {
-      order: 1
+      order: 1,
+      transition: 'fade'
     }
   },
   // {
@@ -41,7 +64,8 @@ const routes: Array<RouteRecordRaw> = [
     component: () =>
       import(/* webpackChunkName: "post" */ '@/views/editor.vue'),
     meta: {
-      order: 11
+      order: 11,
+      transition: 'slide-left'
     }
   },
   {
@@ -49,7 +73,8 @@ const routes: Array<RouteRecordRaw> = [
     name: 'Tools',
     component: () => import(/* webpackChunkName: "main" */ '@/views/tools.vue'),
     meta: {
-      order: 2
+      order: 2,
+      transition: 'fade'
     }
   },
   {
@@ -57,7 +82,8 @@ const routes: Array<RouteRecordRaw> = [
     name: 'Me',
     component: () => import(/* webpackChunkName: "main" */ '@/views/me.vue'),
     meta: {
-      order: 3
+      order: 3,
+      transition: 'fade'
     }
   }
 ]
@@ -83,13 +109,12 @@ router.beforeEach((to, from) => {
 })
 
 // 控制路由切换的动画
-router.afterEach((to, from) => {
-  if (!from.meta.order) return
-  const transitionName =
-    from.meta.order < to.meta.order ? 'van-slide-left' : 'van-slide-right'
-  from.meta.transition = transitionName
-  to.meta.transition = transitionName
-  console.log(transitionName)
-})
+// router.afterEach((to, from) => {
+//   if (!from.meta.order) return
+//   const transitionName =
+//     from.meta.order < to.meta.order ? 'van-slide-left-left' : 'van-slide-left-right'
+//   from.meta.transition = transitionName
+//   to.meta.transition = transitionName
+// })
 
 export default router
