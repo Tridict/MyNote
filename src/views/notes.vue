@@ -109,7 +109,7 @@ const onEdit = (id: number) => {
 
 <style lang="scss" scoped>
 .article-item {
-  margin: 1rem;
+  margin: $margin-items;
   .article-title {
     font-weight: 700;
     color: $text-black;

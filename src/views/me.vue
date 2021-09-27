@@ -13,6 +13,7 @@
           </template>
         </van-field>
       </van-cell-group>
+      <van-button class="btn" block to="/login">退出登录</van-button>
     </template>
   </Page>
 </template>
@@ -25,3 +26,10 @@ const username = 'cora'
 const isAutoDark = ref(false)
 const isDark = ref(false)
 </script>
+
+<style lang="scss" scoped>
+.btn {
+  margin: $margin-items 0;
+  border: 0;
+}
+</style>

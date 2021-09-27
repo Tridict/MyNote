@@ -10,7 +10,7 @@
       />
       <van-field
         v-model="username"
-        name="用户名"
+        name="username"
         label="用户名"
         placeholder="请输入用户名"
         :rules="[{ required: true, message: '请填写用户名' }]"
@@ -18,7 +18,7 @@
       <van-field
         v-model="password"
         type="password"
-        name="密码"
+        name="password"
         label="密码"
         placeholder="请输入密码"
         :rules="[{ regPassword, message: '请填写密码' }]"
@@ -34,7 +34,7 @@
         </template>
       </van-cell>
     </van-cell-group>
-    <div style="margin: 16px">
+    <div class="btn-wrap">
       <van-button round block type="primary" native-type="submit">
         提交
       </van-button>
@@ -43,11 +43,16 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
+import { Notify } from 'vant'
+import store from '@/utils/stores'
+import { useRouter } from 'vue-router'
+const router = useRouter()
+
 interface FormValues {
   keys: string
-  用户名: string
-  密码: string
+  username: string
+  password: string
 }
 
 const keys = ref('')
@@ -67,11 +72,44 @@ const validatorMessage = () => `LeanCloud字符串可能不正确`
 
 const onSubmit = (values: FormValues) => {
   console.log('submit', values)
+  onLogin()
 }
+
+const onLogin = () => {
+  rememberOptions()
+  Notify({ type: 'success', message: `你好，${username.value}，登录成功啦！` })
+  router.push('/notes')
+}
+
+const rememberOptions = () => {
+  if (rememberKeys.value) {
+    store.setLocal('keys', keys.value)
+  } else {
+    store.setLocal('keys', '')
+  }
+  if (rememberUsername.value) {
+    store.setLocal('username', username.value)
+  } else {
+    store.setLocal('username', '')
+  }
+  store.setLocal('rememberKeys', rememberKeys.value)
+  store.setLocal('rememberUsername', rememberUsername.value)
+}
+
+onMounted(() => {
+  rememberKeys.value = store.get('rememberKeys') || false
+  rememberUsername.value = store.get('rememberUsername') || false
+  keys.value = store.get('keys') || ''
+  username.value = store.get('username') || ''
+})
 </script>
 
 <style lang="scss" scoped>
 :deep().van-cell__title {
   text-align: left;
+}
+
+.btn-wrap {
+  margin: $margin-items;
 }
 </style>

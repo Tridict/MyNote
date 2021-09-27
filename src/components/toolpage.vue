@@ -64,7 +64,7 @@ const onBack = () => {
 }
 .content-wrap,
 .btn-wrap {
-  margin: 16px;
+  margin: $margin-items;
   font-size: var(--van-button-normal-font-size);
 }
 </style>
