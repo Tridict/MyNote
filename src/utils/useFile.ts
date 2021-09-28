@@ -14,14 +14,14 @@ interface FileMeta {
 // 提供fileMetaList
 const useFile = () => {
   const fileMetaList = ref<FileMeta[]>([])
-  const onImportFiles = (file: any) => {
+  const onImportFiles = async (file: any) => {
     // 默认的input框处理
     if (file instanceof FileList) {
-      readFileLists(file, fileMetaList.value)
+      await readFileLists(file, fileMetaList.value)
     }
     // 接入vant-ui
     else if (file.file instanceof File) {
-      readFileLists(file.file, fileMetaList.value)
+      await readFileLists(file.file, fileMetaList.value)
     } else {
       console.log(file)
       // file.map((x: { content: string; file: File; message: string; status }) => {
@@ -49,7 +49,7 @@ const useFile = () => {
   return { fileMetaList, onImportFiles, onDropFile, onRemoveFile }
 }
 
-const readFileLists = (fileList: FileList | File, fileMetaList: FileMeta[]) => {
+const readFileLists = async (fileList: FileList | File, fileMetaList: FileMeta[]) => {
   let files: FileList | File[] = []
   if (fileList instanceof File) {
     files = [fileList]
@@ -60,7 +60,7 @@ const readFileLists = (fileList: FileList | File, fileMetaList: FileMeta[]) => {
       Notify(`文件【${file.name}】重复。`)
     } else {
       // 用一个对象保存文件的meta信息
-      fileMetaList.push({
+      fileMetaList.unshift({
         obj: file,
         name: file.name,
         hasRead: false,
@@ -72,9 +72,12 @@ const readFileLists = (fileList: FileList | File, fileMetaList: FileMeta[]) => {
   // 读取文件内容
   for (const file of fileMetaList) {
     if (file.hasRead) continue
-    readFile(file).catch(({ error }) => {
+    try {
+      await readFile(file)
+      Notify({ type: 'success', message: `文件读取成功`, duration: 5000 })
+    } catch (error) {
       Notify({ type: 'warning', message: `${error}`, duration: 5000 })
-    })
+    }
   }
 }
 

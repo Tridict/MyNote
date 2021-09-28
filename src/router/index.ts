@@ -25,7 +25,7 @@ const routes: Array<RouteRecordRaw> = [
     path: '/upload',
     name: 'Upload',
     component: () =>
-      import(/* webpackChunkName: "main" */ '@/components/upload-box.vue'),
+      import(/* webpackChunkName: "main" */ '@/components/_upload-box.vue'),
     meta: {
       order: 1,
       transition: 'fade'

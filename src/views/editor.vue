@@ -1,5 +1,5 @@
 <template>
-  <div class="editor">
+  <div class="editor-wrap">
     <van-nav-bar title="MyNote">
       <template #left>
         <van-button size="small" @click="onBack">
@@ -38,22 +38,54 @@
       </template>
     </van-nav-bar>
     <div class="v-md-editor-wrap">
-      <v-md-editor v-model="text" :mode="mode"></v-md-editor>
+      <v-md-editor
+        v-model="text"
+        :mode="mode"
+        :height="editorHeight"
+        left-toolbar="undo redo | toc | ul ol quote table link code | sync-scroll clear"
+        right-toolbar=""
+      ></v-md-editor>
     </div>
     <van-action-sheet
       v-model:show="showMore"
-      :actions="options"
       cancel-text="取消"
       close-on-click-action
       safe-area-inset-bottom
-    />
+    >
+      <label class="uploader-wrap">
+        <van-uploader accept=".md, .txt" :after-read="afterRead">
+          导入笔记
+        </van-uploader>
+        <div class="uploader-warn van-action-sheet__subname">
+          导入笔记将覆盖您当前输入的内容
+        </div>
+      </label>
+      <button class="van-action-sheet__item">导出笔记</button>
+    </van-action-sheet>
+    <!-- <van-action-sheet
+      v-model:show="showToc"
+      close-on-click-action
+      safe-area-inset-bottom
+    >
+      <div id="toc-wrap"></div>
+    </van-action-sheet> -->
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted, computed } from 'vue'
+import { Dialog, Notify } from 'vant'
 import { useRouter } from 'vue-router'
 import { useEditorOptions } from '@/utils/useActionSheet'
+import useFile from '@/utils/useFile'
+const { fileMetaList, onImportFiles } = useFile()
+
+const afterRead = async (file) => {
+  await onImportFiles(file)
+  console.log(fileMetaList.value[0])
+  text.value = fileMetaList.value[0]?.content
+  showMore.value = false
+}
 
 const useMode = () => {
   // type Mode = 'edit' | 'preview' | 'editable'
@@ -67,12 +99,13 @@ const useMode = () => {
   return { mode, isEdit, showPreview }
 }
 
-const useKeyboard = () => {
+const useKeyboard = (editorHeight) => {
   const isKeyboard = ref(false)
-  const toolbar = ref(null) // html element?
+  const editor = ref(null) // html element?
 
   const onScroll = () => {
     if (isKeyboard.value) {
+      Notify('滚动啦')
       // const value = document.documentElement.clientHeight - window.innerHeight
       // addText('clientHeight-innerHeight ' + value)
       // addText('scrollTop ' + document.documentElement.scrollTop)
@@ -80,7 +113,7 @@ const useKeyboard = () => {
       //   value - document.documentElement.scrollTop
       // }px; top: auto`
       // toolbar.value.style = `top: ${window.innerHeight - 41}px; bottom: auto;`
-      toolbar.value.style = `bottom: 0`
+      // toolbar.value.style = `bottom: 0`
     }
   }
 
@@ -98,6 +131,9 @@ const useKeyboard = () => {
       // editor.value.style = `height: calc(100vh - ${
       //   document.documentElement.clientHeight - window.innerHeight
       // }px)`
+      editorHeight.value = `calc(100vh - var(--van-nav-bar-height) - ${
+        document.documentElement.clientHeight - window.innerHeight
+      }px)`
     }, 300)
   }
 
@@ -106,6 +142,7 @@ const useKeyboard = () => {
       // 隐藏toolbar
       // toolbar.value.style = 'display: none'
       isKeyboard.value = false
+      editorHeight.value = 'calc(100vh - var(--van-nav-bar-height))'
     }, 300)
   }
 
@@ -115,21 +152,23 @@ const useKeyboard = () => {
       tt.addEventListener('focus', onKeyboard)
       tt.addEventListener('blur', offKeyboard)
     }
-    window.addEventListener('scroll', onScroll)
-    toolbar.value = document.querySelector('.v-md-editor__toolbar')
+    if (editor.value != null) {
+      console.log(editor.value)
+      // toolbar.value = document.querySelector('.v-md-editor__toolbar')
+      editor.value.addEventListener('scroll', onScroll)
+    }
     // 隐藏toolbar
     // toolbar.value.style = 'display: none'
   })
-
-  return { isKeyboard }
 }
 
 const router = useRouter()
-const { showMore, options } = useEditorOptions()
+const { showMore } = useEditorOptions()
 const { mode, isEdit, showPreview } = useMode()
 useKeyboard()
 
 const text = ref('## 在此编辑您的内容')
+const editorHeight = ref('calc(100vh - var(--van-nav-bar-height))')
 
 // 目前仅实现了在文末加文字的功能...（需要知道光标位置？）
 // const addText = (txt = '### 这是一个**可爱的**三级标题哦！') => {
@@ -158,29 +197,32 @@ const text = ref('## 在此编辑您的内容')
 // }
 
 const onBack = () => {
-  // 判断是否保存草稿
-  router.push('/notes')
-  // notes更新数据
+  Dialog.confirm({
+    message: '确认返回吗？笔记不会自动保存哦'
+  })
+    .then(() => {
+      // on confirm
+      router.push('/notes')
+    })
+    .catch(() => {
+      // on cancel
+    })
 }
 
 const onSave = () => {
   // 保存
-  // 然后返回
-  onBack()
+  Notify({ type: 'success', message: `保存成功`, duration: 800 })
+  // 返回
+  // if (setting.backOnSave) {
+  //   router.push('/notes')
+  // }
 }
 </script>
 
 <style lang="scss" scoped>
-$padding-bottom: 0rem;
-
-.editor {
+.editor-wrap {
   display: flex;
   flex-direction: column;
-  // padding-bottom: $padding-bottom;
-  // padding-bottom: $padding-bottom + constant(safe-area-inset-bottom); // 兼容ios<11.2
-  // padding-bottom: $padding-bottom + env(safe-area-inset-bottom);
-  height: calc(100vh - $padding-bottom);
-  background: yellow;
   .v-md-editor-wrap {
     flex: 1;
     position: relative;
@@ -191,6 +233,8 @@ $padding-bottom: 0rem;
       left: 0;
       right: 0;
       overflow: auto;
+      // .v-md-editor__editor-wrapper {
+      // }
     }
   }
   .keyboard {
@@ -213,13 +257,13 @@ $padding-bottom: 0rem;
     flex-direction: column-reverse;
     .v-md-editor__toolbar {
       // flex-direction: column;
-      background: #ddd;
-      position: fixed;
-      top: auto;
-      bottom: 0;
-      padding-bottom: constant(safe-area-inset-bottom);
-      padding-bottom: env(safe-area-inset-bottom);
-      z-index: 100;
+      // background: #ddd;
+      // position: fixed;
+      // top: auto;
+      // bottom: 0;
+      padding-bottom: 6px + constant(safe-area-inset-bottom);
+      padding-bottom: 6px + env(safe-area-inset-bottom);
+      // z-index: 100;
       &-left {
         flex: 1;
         flex-wrap: nowrap;
@@ -232,8 +276,8 @@ $padding-bottom: 0rem;
         }
       }
       &-right {
-        // margin-left: 0;
-        display: none;
+        margin-left: 0;
+        // display: none;
       }
     }
     .v-md-editor__main {
@@ -243,8 +287,8 @@ $padding-bottom: 0rem;
         border-top: 1px solid #ddd;
         border-right: 0;
       }
-      .v-md-editor__preview-wrapper {
-      }
+      // .v-md-editor__preview-wrapper {
+      // }
       .v-md-editor__editor-wrapper,
       .v-md-editor__preview-wrapper {
         // padding: 2rem;
@@ -263,6 +307,21 @@ $padding-bottom: 0rem;
   :deep().van-button--small {
     width: var(--van-button-small-height);
     margin: 0.1rem;
+  }
+}
+
+.uploader-wrap {
+  width: 100%;
+  .van-uploader {
+    width: 100%;
+    :deep().van-uploader__wrapper {
+      justify-content: center;
+      padding-top: $margin-items;
+    }
+  }
+  .uploader-warn {
+    text-align: center;
+    padding-bottom: $margin-items;
   }
 }
 </style>

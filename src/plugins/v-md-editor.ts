@@ -48,11 +48,11 @@ import 'codemirror/addon/scroll/simplescrollbars.css'
 import 'codemirror/lib/codemirror.css'
 
 // 使用mermaid插件
-import createMermaidPlugin from '@kangc/v-md-editor/lib/plugins/mermaid/cdn.js'
-import '@kangc/v-md-editor/lib/plugins/mermaid/mermaid.css'
+// import createMermaidPlugin from '@kangc/v-md-editor/lib/plugins/mermaid/cdn.js'
+// import '@kangc/v-md-editor/lib/plugins/mermaid/mermaid.css'
 
 // katex插件
-import createKatexPlugin from '@kangc/v-md-editor/lib/plugins/katex/cdn.js'
+// import createKatexPlugin from '@kangc/v-md-editor/lib/plugins/katex/cdn.js'
 
 // todo-list插件
 import createTodoListPlugin from '@kangc/v-md-editor/lib/plugins/todo-list/index'
@@ -63,8 +63,8 @@ VMdEditor.Codemirror = Codemirror
 VMdEditor.use(githubTheme, {
   Hljs: hljs
 })
-VMdEditor.use(createMermaidPlugin())
-VMdEditor.use(createKatexPlugin())
+// VMdEditor.use(createMermaidPlugin())
+// VMdEditor.use(createKatexPlugin())
 VMdEditor.use(createTodoListPlugin())
 
 // app.use(VMdEditor);
