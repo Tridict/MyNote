@@ -60,7 +60,13 @@
           导入笔记将覆盖您当前输入的内容
         </div>
       </label>
-      <button class="van-action-sheet__item">导出笔记</button>
+      <a
+        class="export-wrap"
+        :download="saveFileName"
+        :href="getDownloadLink(text)"
+      >
+        <button class="van-action-sheet__item">导出笔记</button>
+      </a>
     </van-action-sheet>
     <!-- <van-action-sheet
       v-model:show="showToc"
@@ -78,7 +84,9 @@ import { Dialog, Notify } from 'vant'
 import { useRouter } from 'vue-router'
 import { useEditorOptions } from '@/utils/useActionSheet'
 import useFile from '@/utils/useFile'
+import { useExport } from '@/utils/useExport'
 const { fileMetaList, onImportFiles } = useFile()
+const { getDownloadLink } = useExport()
 
 const afterRead = async (file) => {
   await onImportFiles(file)
@@ -120,6 +128,10 @@ const useKeyboard = (editorHeight) => {
   const onKeyboard = () => {
     setTimeout(() => {
       isKeyboard.value = true
+      editorHeight.value = '50vh'
+      // editorHeight.value = `calc(100vh - var(--van-nav-bar-height) - ${
+      //   document.documentElement.clientHeight - window.innerHeight
+      // }px)`
       // toolbar.value.style = `bottom: ${
       //   document.documentElement.clientHeight -
       //   window.innerHeight -
@@ -131,9 +143,6 @@ const useKeyboard = (editorHeight) => {
       // editor.value.style = `height: calc(100vh - ${
       //   document.documentElement.clientHeight - window.innerHeight
       // }px)`
-      editorHeight.value = `calc(100vh - var(--van-nav-bar-height) - ${
-        document.documentElement.clientHeight - window.innerHeight
-      }px)`
     }, 300)
   }
 
@@ -147,7 +156,7 @@ const useKeyboard = (editorHeight) => {
   }
 
   onMounted(() => {
-    const tt = document.querySelector('textarea')
+    const tt = document.querySelector('.CodeMirror-code')
     if (tt !== null) {
       tt.addEventListener('focus', onKeyboard)
       tt.addEventListener('blur', offKeyboard)
@@ -169,6 +178,14 @@ useKeyboard()
 
 const text = ref('## 在此编辑您的内容')
 const editorHeight = ref('calc(100vh - var(--van-nav-bar-height))')
+const saveFileName = computed(() => {
+  const title = text.value.split('\n')[0]
+  if (title[0] == '#') {
+    return title.replace(/#+ /g, '')
+  } else {
+    return title
+  }
+})
 
 // 目前仅实现了在文末加文字的功能...（需要知道光标位置？）
 // const addText = (txt = '### 这是一个**可爱的**三级标题哦！') => {
@@ -261,8 +278,8 @@ const onSave = () => {
       // position: fixed;
       // top: auto;
       // bottom: 0;
-      padding-bottom: 6px + constant(safe-area-inset-bottom);
-      padding-bottom: 6px + env(safe-area-inset-bottom);
+      padding-bottom: calc(6px + constant(safe-area-inset-bottom));
+      padding-bottom: calc(6px + env(safe-area-inset-bottom));
       // z-index: 100;
       &-left {
         flex: 1;
@@ -312,6 +329,7 @@ const onSave = () => {
 
 .uploader-wrap {
   width: 100%;
+  color: $text-color;
   .van-uploader {
     width: 100%;
     :deep().van-uploader__wrapper {
@@ -323,5 +341,9 @@ const onSave = () => {
     text-align: center;
     padding-bottom: $margin-items;
   }
+}
+
+.export-wrap {
+  color: $text-color;
 }
 </style>

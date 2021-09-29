@@ -58,7 +58,6 @@ import 'codemirror/lib/codemirror.css'
 import createTodoListPlugin from '@kangc/v-md-editor/lib/plugins/todo-list/index'
 import '@kangc/v-md-editor/lib/plugins/todo-list/todo-list.css'
 
-
 VMdEditor.Codemirror = Codemirror
 VMdEditor.use(githubTheme, {
   Hljs: hljs
@@ -66,7 +65,5 @@ VMdEditor.use(githubTheme, {
 // VMdEditor.use(createMermaidPlugin())
 // VMdEditor.use(createKatexPlugin())
 VMdEditor.use(createTodoListPlugin())
-
-// app.use(VMdEditor);
 
 export default VMdEditor
