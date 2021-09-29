@@ -240,6 +240,7 @@ const onSave = () => {
 .editor-wrap {
   display: flex;
   flex-direction: column;
+  background: $bg;
   .v-md-editor-wrap {
     flex: 1;
     position: relative;
