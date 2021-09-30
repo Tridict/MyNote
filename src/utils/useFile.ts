@@ -74,7 +74,7 @@ const readFileLists = async (fileList: FileList | File, fileMetaList: FileMeta[]
     if (file.hasRead) continue
     try {
       await readFile(file)
-      Notify({ type: 'success', message: `文件读取成功`, duration: 5000 })
+      Notify({ type: 'success', message: `文件读取成功`, duration: 1000 })
     } catch (error) {
       Notify({ type: 'warning', message: `${error}`, duration: 5000 })
     }

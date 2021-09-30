@@ -3,17 +3,14 @@ import {
   Button,
   Cell,
   CellGroup,
-  // Dialog,
   Form,
   Field,
   Icon,
   NavBar,
-  // Notify,
   Switch,
   Tabbar,
   TabbarItem,
   Tag,
-  // Toast,
   Uploader
 } from 'vant'
 
@@ -22,17 +19,14 @@ const pluginsVant = [
   Button,
   Cell,
   CellGroup,
-  // Dialog,
   Form,
   Field,
   Icon,
   NavBar,
-  // Notify,
   Switch,
   Tabbar,
   TabbarItem,
   Tag,
-  // Toast,
   Uploader
 ]
 
