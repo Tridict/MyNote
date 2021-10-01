@@ -3,37 +3,18 @@
     <van-nav-bar title="MyNote">
       <template #left>
         <van-button size="small" @click="onBack">
-          <van-icon
-            size="20"
-            name="https://api.iconify.design/mdi:chevron-left.svg"
-          />
+          <Icon name="back" />
         </van-button>
       </template>
       <template #right>
         <van-button size="small" @click="showMore = true">
-          <van-icon
-            size="16"
-            name="https://api.iconify.design/fa-solid:ellipsis-h.svg"
-          />
+          <Icon name="showMore" />
         </van-button>
         <van-button size="small" @click="showPreview">
-          <van-icon
-            v-if="isEdit"
-            size="20"
-            name="https://api.iconify.design/mdi:file-eye-outline.svg"
-          />
-          <van-icon
-            v-else
-            size="20"
-            name="https://api.iconify.design/mdi:note-edit-outline.svg"
-          />
+          <Icon name="showPreview" :active="isEdit" />
         </van-button>
         <van-button size="small" @click="onSave">
-          <van-icon
-            size="20"
-            name="https://api.iconify.design/mdi:content-save-outline.svg"
-          />
-          <!-- <van-icon size="18" name="https://api.iconify.design/cil:save.svg" /> -->
+          <Icon name="save" />
         </van-button>
       </template>
     </van-nav-bar>
@@ -85,6 +66,7 @@ import { useRouter } from 'vue-router'
 import { useEditorOptions } from '@/utils/useActionSheet'
 import useFile from '@/utils/useFile'
 import { useExport } from '@/utils/useExport'
+import Icon from '@/components/icons/navbar.vue'
 
 const BEGIN_TEXT = '## 在此编辑您的内容' //记录初始文本，如果没有修改，则不需要保存
 let saveText = '' //记录上次保存的内容，如果有本地内容未保存，则在退出时候给提示
