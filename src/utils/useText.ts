@@ -1,12 +1,13 @@
-import { ref, computed, onBeforeMount } from 'vue'
+import { ref, computed, onBeforeMount, Ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { Dialog, Notify } from 'vant'
 import { decode } from 'js-base64'
+import { VantFile } from '@/types'
 import useFile from '@/utils/useFile'
 import { getQueryParams } from '@/utils/urlQuery'
-import { getNote, updateNote, createNote, delNote } from '@/api/notes'
+import { getNote, updateNote, createNote, delNote, publicNote, pinnedNote } from '@/api/notes'
 
-export const useText = (hideMore: ()=>void) => {
+export const useText = (mode: Ref<'edit' | 'preview' | 'editable'>, hideMore: ()=>void) => {
   const BEGIN_TEXT = '## 在此编辑您的内容' //记录初始文本，如果没有修改，则不需要保存
   let saveText = '' //记录上次保存的内容，如果有本地内容未保存，则在退出时候给提示
   const text = ref('')
@@ -23,7 +24,7 @@ export const useText = (hideMore: ()=>void) => {
     }
   })
 
-  const afterRead = async (file: any) => {
+  const importNote = async (file: VantFile) => {
     hideMore()
     await onImportFiles(file)
     const result = fileMetaList.value[0]?.content
@@ -34,7 +35,7 @@ export const useText = (hideMore: ()=>void) => {
     }
   }
 
-  const onSave = async () => {
+  const handleSave = async () => {
     // 保存
     try {
       if (postId.value) {
@@ -48,7 +49,7 @@ export const useText = (hideMore: ()=>void) => {
       saveText = text.value
       Notify({ type: 'success', message: `保存成功`, duration: 800 })
       // 返回
-      // if (setting.backOnSave) {
+      // if (setting.backhandleSave) {
         // router.push('/notes')
       // }
     } catch (error) {
@@ -56,7 +57,7 @@ export const useText = (hideMore: ()=>void) => {
     }
   }
 
-  const handleDelete = async () => {
+  const deleteNote = async () => {
     // 首先弹出窗口确认是否要删除
     const isDel = await Dialog.confirm({
       title: '确定要删除笔记吗？',
@@ -78,7 +79,33 @@ export const useText = (hideMore: ()=>void) => {
     }
   }
 
-  const checkIfSave = async () => {
+  const handlePublic = async () => {
+    try {
+      if (postId.value) {
+        await publicNote(postId.value)
+        Notify({ type: 'success', message: `笔记已公开` })
+      } else {
+        Notify(`请先保存笔记`)
+      }
+    } catch (error) {
+      Notify(`${error}`)
+    }
+  }
+
+  const handlePin = async () => {
+    try {
+      if (postId.value) {
+        await pinnedNote(postId.value)
+        Notify({ type: 'success', message: `笔记置顶成功` })
+      } else {
+        Notify(`请先保存笔记`)
+      }
+    } catch (error) {
+      Notify(`${error}`)
+    }
+  }
+
+  const checkIfSaved = async () => {
     if (text.value == BEGIN_TEXT || text.value == saveText) {
       return true
     } else {
@@ -109,6 +136,7 @@ export const useText = (hideMore: ()=>void) => {
         Notify(`${error}`)
       }
     } else {
+      mode.value = 'edit'
       text.value = BEGIN_TEXT
     }
   })
@@ -133,5 +161,5 @@ export const useText = (hideMore: ()=>void) => {
   //   }
   // })
 
-  return { text, saveFileName, onSave, handleDelete, afterRead, checkIfSave }
+  return { text, saveFileName, handlePin, handlePublic, handleSave, deleteNote, importNote, checkIfSaved }
 }

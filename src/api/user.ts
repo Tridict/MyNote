@@ -1,11 +1,5 @@
 import axios from '@/api'
 
-interface User {
-  __type: string
-  className: string
-  objectId: string
-}
-
 interface SignUpRes {
   sessionToken: string
   objectId: string
@@ -32,14 +26,6 @@ interface SignUpWechatRes extends SignUpRes {
   username: string
   authData: {
     wechat: WechatAuthParams
-  }
-}
-
-const getUser = (userId: string): User => {
-  return {
-    __type: 'Pointer',
-    className: '_User',
-    objectId: userId
   }
 }
 
@@ -83,3 +69,9 @@ export const updatePassword = (
 ): Promise<SignUpRes> => {
   return axios.put(`/1.1/users/${objectId}/updatePassword`, params)
 }
+
+// 获取用户列表: 403, 没有find权限----如果开放find权限则会暴露所有用户的objectId
+// export const getUserList = () => {
+//   return axios.get(`/1.1/users`)
+// }
+

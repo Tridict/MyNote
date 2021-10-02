@@ -2,7 +2,7 @@
   <div class="editor-wrap">
     <van-nav-bar title="MyNote">
       <template #left>
-        <van-button size="small" @click="onBack">
+        <van-button size="small" @click="handleBack">
           <Icon name="back" />
         </van-button>
       </template>
@@ -13,7 +13,7 @@
         <van-button size="small" @click="showPreview">
           <Icon name="showPreview" :active="isEdit" />
         </van-button>
-        <van-button size="small" @click="onSave">
+        <van-button size="small" @click="handleSave">
           <Icon name="save" />
         </van-button>
       </template>
@@ -34,7 +34,7 @@
       safe-area-inset-bottom
     >
       <label class="uploader-wrap">
-        <van-uploader accept=".md, .txt" :after-read="afterRead">
+        <van-uploader accept=".md, .txt" :after-read="handleImport">
           导入笔记
         </van-uploader>
         <div class="uploader-warn van-action-sheet__subname">
@@ -46,8 +46,23 @@
         :download="saveFileName"
         :href="getDownloadLink(text)"
       >
-        <button class="van-action-sheet__item">导出笔记</button>
+        <button class="van-action-sheet__item" @click="showMore = false">导出笔记</button>
       </a>
+      <button
+        class="van-action-sheet__item"
+        @click="handlePin"
+      >
+        置顶笔记
+      </button>
+      <button
+        class="van-action-sheet__item"
+        @click="handlePublic"
+      >
+        公开笔记
+        <div class="uploader-warn van-action-sheet__subname">
+          公开以后，所有人都将能看到您的笔记（只读）
+        </div>
+      </button>
       <button
         class="van-action-sheet__item"
         style="color: red"
@@ -68,17 +83,17 @@
 
 <script setup lang="ts">
 import { ref, onMounted, computed, onBeforeUnmount } from 'vue'
-import { Notify } from 'vant'
+// import { Notify } from 'vant'
 import { useRouter } from 'vue-router'
 import { useEditorOptions } from '@/utils/useActionSheet'
 import { useExport } from '@/utils/useExport'
 import { useText } from '@/utils/useText'
 import Icon from '@/components/icons/navbar.vue'
+import { VantFile } from '@/types'
 
 const useMode = () => {
-  // type Mode = 'edit' | 'preview' | 'editable'
-  // const mode = ref<Mode>('edit')
-  const mode = ref('edit')
+  type Mode = 'edit' | 'preview' | 'editable'
+  const mode = ref<Mode>('preview')
   const isEdit = computed(() => mode.value === 'edit')
   const showPreview = () => {
     mode.value = mode.value === 'edit' ? 'preview' : 'edit'
@@ -87,89 +102,17 @@ const useMode = () => {
   return { mode, isEdit, showPreview }
 }
 
-const useKeyboard = () => {
-  const editorHeight = ref('calc(100vh - var(--van-nav-bar-height))')
-  const isKeyboard = ref(false)
-  const editor = ref(null) // html element?
-
-  const onScroll = () => {
-    if (isKeyboard.value) {
-      Notify('滚动啦')
-      // const value = document.documentElement.clientHeight - window.innerHeight
-      // addText('clientHeight-innerHeight ' + value)
-      // addText('scrollTop ' + document.documentElement.scrollTop)
-      // toolbar.value.style = `bottom: ${
-      //   value - document.documentElement.scrollTop
-      // }px; top: auto`
-      // toolbar.value.style = `top: ${window.innerHeight - 41}px; bottom: auto;`
-      // toolbar.value.style = `bottom: 0`
-    }
-  }
-
-  // const scrollTo = () => {
-  //   // toolbar2.value.scrollIntoView()  // 实验中的功能，不起效果
-  //   // window.scrollTo(0, currentTop)
-  //   document.documentElement.scrollTop = 0
-  // }
-
-  const onKeyboard = () => {
-    setTimeout(() => {
-      isKeyboard.value = true
-      editorHeight.value = '50vh'
-      // editorHeight.value = `calc(100vh - var(--van-nav-bar-height) - ${
-      //   document.documentElement.clientHeight - window.innerHeight
-      // }px)`
-      // toolbar.value.style = `bottom: ${
-      //   document.documentElement.clientHeight -
-      //   window.innerHeight -
-      //   document.documentElement.scrollTop
-      // }px; top: auto;`
-      // toolbar.value.style = `top: ${window.innerHeight - 41}px; bottom: auto;`
-      // 呈现吸底的toolbar
-      // editor.value.appendChild(toolbar.value)
-      // editor.value.style = `height: calc(100vh - ${
-      //   document.documentElement.clientHeight - window.innerHeight
-      // }px)`
-    }, 300)
-  }
-
-  const offKeyboard = () => {
-    setTimeout(() => {
-      // 隐藏toolbar
-      // toolbar.value.style = 'display: none'
-      isKeyboard.value = false
-      editorHeight.value = 'calc(100vh - var(--van-nav-bar-height))'
-    }, 300)
-  }
-
-  onMounted(() => {
-    const tt = document.querySelector('.CodeMirror-code')
-    if (tt !== null) {
-      tt.addEventListener('focus', onKeyboard)
-      tt.addEventListener('blur', offKeyboard)
-    }
-    if (editor.value != null) {
-      console.log(editor.value)
-      // toolbar.value = document.querySelector('.v-md-editor__toolbar')
-      editor.value.addEventListener('scroll', onScroll)
-    }
-    // 隐藏toolbar
-    // toolbar.value.style = 'display: none'
-  })
-
-  return { editorHeight }
-}
-
+const editorHeight = ref('calc(100vh - var(--van-nav-bar-height))')
+// const { editorHeight } = useKeyboard()
 const { getDownloadLink } = useExport()
 const { showMore, hideMore } = useEditorOptions()
-const { text, saveFileName, onSave, handleDelete, afterRead, checkIfSave } =
-  useText(hideMore)
 const { mode, isEdit, showPreview } = useMode()
-const { editorHeight } = useKeyboard()
+const { text, saveFileName, handlePin, handlePublic, handleSave, deleteNote, importNote, checkIfSaved } =
+  useText(mode, hideMore)
 const router = useRouter()
 
-const onBack = () => {
-  checkIfSave().then((val) => {
+const handleBack = () => {
+  checkIfSaved().then((val) => {
     // console.log(val)
     if (val == true) {
       router.push('/notes')
@@ -189,6 +132,16 @@ const onBack = () => {
   //       // on cancel
   //     })
   // }
+}
+
+const handleImport = (file: VantFile) => {
+  showMore.value = false
+  importNote(file)
+}
+
+const handleDelete = () => {
+  showMore.value = false
+  deleteNote()
 }
 
 onMounted(() => {

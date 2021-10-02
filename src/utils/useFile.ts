@@ -1,6 +1,7 @@
 import readFile from '@/utils/fileReader'
 import { ref } from 'vue'
 import { Notify } from 'vant'
+import { VantFile } from '@/types'
 
 interface FileMeta {
   obj: File
@@ -14,7 +15,7 @@ interface FileMeta {
 // 提供fileMetaList
 const useFile = () => {
   const fileMetaList = ref<FileMeta[]>([])
-  const onImportFiles = async (file: any) => {
+  const onImportFiles = async (file: VantFile) => {
     // 默认的input框处理
     if (file instanceof FileList) {
       await readFileLists(file, fileMetaList.value)

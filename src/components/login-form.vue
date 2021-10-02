@@ -48,7 +48,7 @@ import { useRouter } from 'vue-router'
 import { Notify } from 'vant'
 import store from '@/utils/stores'
 import { getQueryParams } from '@/utils/urlQuery'
-import { signUp, login } from '@/api/lc'
+import { signUp, login } from '@/api/user'
 const router = useRouter()
 
 const status = reactive({

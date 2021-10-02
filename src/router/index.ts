@@ -54,7 +54,7 @@ const routes: Array<RouteRecordRaw> = [
     path: '/post',
     name: 'Post',
     component: () =>
-      import(/* webpackChunkName: "post" */ '@/views/editor.vue'),
+      import(/* webpackChunkName: "post" */ '@/views/post.vue'),
     meta: {
       order: 11,
       transition: 'slide-left'

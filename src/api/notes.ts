@@ -44,7 +44,10 @@ export const getNote = (postId: string): Promise<NoteRes> => {
 }
 
 // 创建笔记
-export const createNote = (noteContent: string, currentUser = getUser()): Promise<{
+export const createNote = (
+  noteContent: string,
+  currentUser = getUser()
+): Promise<{
   createdAt: string
   objectId: string
 }> => {
@@ -53,16 +56,19 @@ export const createNote = (noteContent: string, currentUser = getUser()): Promis
     owner: currentUser,
     ACL: {
       [currentUser.objectId]: { write: true, read: true }
-    }
+    },
+    pinned: false,
+    tags: [],
+    is_public_read: false,
+    is_public_write: false,
+    shared_to: [],
+    deleted: false
   })
 }
 
-// TODO：批量创建笔记（批量导入的处理——）
-// 参考：批量操作（这是批量发送请求，包括增删改）https://leancloud.cn/docs/rest_api.html#hash787692837
-
 // 保存（更新）笔记
 export const updateNote = (
-  params: { noteContent: string, postId: string },
+  params: { noteContent: string; postId: string },
   currentUser = getUser()
 ) => {
   return axios.put(`/1.1/classes/Note/${params.postId}`, {
@@ -71,81 +77,47 @@ export const updateNote = (
   })
 }
 
-// 删除笔记
-export const delNote = (
-  postId: string,
+export const addTag = (params: { tags: string[]; postId: string }) => {
+  return axios.put(`/1.1/classes/Note/${params.postId}`, {
+    tags: JSON.stringify(params.tags)
+  })
+}
+
+// 公开笔记（所有用户可读）————会遇到不能add fields的问题？？？
+export const publicNote = (postId: string) => {
+  const userId = store.get('LC_userinfo')?.objectId
+  return axios.put(`/1.1/classes/Note/${postId}`, {
+    is_public_read: true,
+    tags: [{
+      "__type": "Pointer",
+      "className": "Tag",
+      "objectId": "615851e1ec1d407bb22da428"
+    }],
+    ACL: { [userId]: {write: true},'*': { read: true } }
+  })
+}
+
+// 置顶笔记：需要在排序上、展示上配套；还有和取消置顶配套...
+export const pinnedNote = (postId: string) => {
+  return axios.put(`/1.1/classes/Note/${postId}`, {
+    pinned: true
+  })
+}
+
+// 分享笔记给指定用户（需要用户的objectId -- 如何查询？？）
+export const shareNote = (
+  ACL: { [key: string]: { write: boolean; read: boolean } },
+  postId: string
 ) => {
+  return axios.put(`/1.1/classes/Note/${postId}`, {
+    ACL
+  })
+}
+
+// 删除笔记
+export const delNote = (postId: string) => {
   return axios.delete(`/1.1/classes/Note/${postId}`)
 }
 
-interface SpyRes {
-  result: {
-    content: {
-      class: string
-      meta_key: string
-      meta_value: string
-    }[]
-    meta: {
-      class: string
-      meta_key: string
-      meta_value: string
-    }[]
-  }
-}
-
-// 分析公众号文章链接
-export const spy = (url: string): Promise<SpyRes> => {
-  return axios.post(`/1.1/functions/spy`, {
-    url,
-    setting: {
-      meta: [
-        {
-          selector: 'h1#activity-name',
-          output_map: { class: 'meta', meta_key: 'title', meta_value: '__text' }
-        },
-        {
-          selector: 'h2#activity-name',
-          output_map: { class: 'meta', meta_key: 'title2', meta_value: '__text' }
-        },
-        // {
-        //   selector: 'meta[property=og:title]',
-        //   output_map: { class: 'meta', meta_key: 'title3', meta_value: '__text' }
-        // },
-        {
-          selector: '#profileBt #js_name',
-          output_map: {
-            class: 'meta',
-            meta_key: 'channel',
-            meta_value: '__text'
-          }
-        },
-        {
-          selector: 'meta[name=author]',
-          output_map: {
-            class: 'meta',
-            meta_key: 'author',
-            meta_value: '@content'
-          }
-        },
-        {
-          selector: 'meta[name=description]',
-          output_map: {
-            class: 'meta',
-            meta_key: 'description',
-            meta_value: '@content'
-          }
-        }
-      ],
-      content: [
-        {
-          selector: '#js_content',
-          output_map: {
-            class: 'article_field',
-            meta_key: 'abstract',
-            meta_value: '__text_abstract'
-          }
-        }
-      ]
-    }
-  })
-}
+// TODO：批量创建笔记（批量导入的处理——）
+// 参考：批量操作（这是批量发送请求，包括增删改）https://leancloud.cn/docs/rest_api.html#hash787692837
