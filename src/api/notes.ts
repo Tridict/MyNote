@@ -1,5 +1,6 @@
 import axios from '@/api'
 import store from '@/utils/stores'
+import { encode } from 'js-base64'
 
 interface User {
   __type: string
@@ -48,7 +49,7 @@ export const createNote = (noteContent: string, currentUser = getUser()): Promis
   objectId: string
 }> => {
   return axios.post(`/1.1/classes/Note`, {
-    content: noteContent,
+    content: encode(noteContent),
     owner: currentUser,
     ACL: {
       [currentUser.objectId]: { write: true, read: true }
@@ -65,7 +66,7 @@ export const updateNote = (
   currentUser = getUser()
 ) => {
   return axios.put(`/1.1/classes/Note/${params.postId}`, {
-    content: params.noteContent,
+    content: encode(params.noteContent),
     owner: currentUser
   })
 }
@@ -77,16 +78,39 @@ export const delNote = (
   return axios.delete(`/1.1/classes/Note/${postId}`)
 }
 
+interface SpyRes {
+  result: {
+    content: {
+      class: string
+      meta_key: string
+      meta_value: string
+    }[]
+    meta: {
+      class: string
+      meta_key: string
+      meta_value: string
+    }[]
+  }
+}
+
 // 分析公众号文章链接
-export const spy = (url: string) => {
+export const spy = (url: string): Promise<SpyRes> => {
   return axios.post(`/1.1/functions/spy`, {
     url,
     setting: {
       meta: [
         {
-          selector: 'h2#activity-name',
+          selector: 'h1#activity-name',
           output_map: { class: 'meta', meta_key: 'title', meta_value: '__text' }
         },
+        {
+          selector: 'h2#activity-name',
+          output_map: { class: 'meta', meta_key: 'title2', meta_value: '__text' }
+        },
+        // {
+        //   selector: 'meta[property=og:title]',
+        //   output_map: { class: 'meta', meta_key: 'title3', meta_value: '__text' }
+        // },
         {
           selector: '#profileBt #js_name',
           output_map: {

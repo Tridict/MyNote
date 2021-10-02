@@ -1,6 +1,7 @@
 import { getNotes } from '@/api/notes'
 import { ref } from '@vue/reactivity'
 import { onMounted } from '@vue/runtime-core'
+import { decode } from 'js-base64'
 
 interface Tag {
   id: number
@@ -69,18 +70,18 @@ const useArticle = () => {
 
   const getArticleList = async (): Promise<void> => {
     const res = await getNotes()
-    // console.log(res)
     const articles: Article[] = res.results.map((x, idx) => {
+      const content = decode(x.content)
       const tags: Tag[] = []
       const time = new Date(x.updatedAt).toLocaleString('zh', { hour12: false })
       if (x.tags) {
         for (const i in x.tags) {
-          tags.push({id: +i, text: x.tags[i]})
+          tags.push({ id: +i, text: x.tags[i] })
         }
       }
       return {
-        title: x.content.split('\n')[0],
-        abstract: x.content,
+        title: content.split('\n')[0],
+        abstract: content.slice(0, 400),
         time,
         id: idx,
         postId: x.objectId,
@@ -88,7 +89,9 @@ const useArticle = () => {
       }
     })
     // 按时间从新到旧排序
-    articles.sort((a, b) => { return Date.parse(b.time) - Date.parse(a.time) })
+    articles.sort((a, b) => {
+      return Date.parse(b.time) - Date.parse(a.time)
+    })
     articleList.value = articles
   }
 
@@ -96,7 +99,5 @@ const useArticle = () => {
 
   return { articleList, getArticleList }
 }
-
-
 
 export { useArticle }

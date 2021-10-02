@@ -1,11 +1,12 @@
 import { ref, computed, onBeforeMount } from 'vue'
 import { useRouter } from 'vue-router'
 import { Dialog, Notify } from 'vant'
+import { decode } from 'js-base64'
 import useFile from '@/utils/useFile'
 import { getQueryParams } from '@/utils/urlQuery'
 import { getNote, updateNote, createNote, delNote } from '@/api/notes'
 
-export const useText = (hideMore) => {
+export const useText = (hideMore: ()=>void) => {
   const BEGIN_TEXT = '## 在此编辑您的内容' //记录初始文本，如果没有修改，则不需要保存
   let saveText = '' //记录上次保存的内容，如果有本地内容未保存，则在退出时候给提示
   const text = ref('')
@@ -22,7 +23,7 @@ export const useText = (hideMore) => {
     }
   })
 
-  const afterRead = async (file) => {
+  const afterRead = async (file: any) => {
     hideMore()
     await onImportFiles(file)
     const result = fileMetaList.value[0]?.content
@@ -41,7 +42,6 @@ export const useText = (hideMore) => {
       } else {
         // 还没有postId，新建笔记
         const res = await createNote(text.value)
-        console.log(res)
         postId.value = res.objectId
         router.replace('/post?id=' + postId.value)
       }
@@ -49,7 +49,7 @@ export const useText = (hideMore) => {
       Notify({ type: 'success', message: `保存成功`, duration: 800 })
       // 返回
       // if (setting.backOnSave) {
-      //   router.push('/notes')
+        // router.push('/notes')
       // }
     } catch (error) {
       Notify(`保存失败：${error}`)
@@ -101,7 +101,7 @@ export const useText = (hideMore) => {
       try {
         const result = await getNote(objId)
         // router.replace('/post')
-        text.value = result.content
+        text.value = decode(result.content)
         saveText = text.value
       } catch (error) {
         console.log(error)
