@@ -3,16 +3,18 @@ const appName = 'mynote'
 interface Store {
   setLocal: (key: string, value: any) => void
   getLocal: (key: string) => any
+  removeLocal: (key: string) => void
   setSession: (key: string, value: any) => void
   getSession: (key: string) => any
   get: (key: string) => any
 }
 
 const stores: Store = {
-  setLocal: setLocal,
-  getLocal: getLocal,
-  setSession: setSession,
-  getSession: getSession,
+  setLocal,
+  getLocal,
+  removeLocal,
+  setSession,
+  getSession,
   get: readAll
 }
 
@@ -33,13 +35,17 @@ function _deserialize(str: string | null, defaultVal = '') {
 
 function setLocal(key: string, value: any): void {
   if (value != undefined) {
-    localStorage.setItem(`${appName}:${key}`, value)
+    localStorage.setItem(`${appName}:${key}`, _serialize(value))
     // console.log(`存储成功！值为${getLocal(key)}`)
   }
 }
 
 function getLocal(key: string): any {
   return _deserialize(localStorage.getItem(`${appName}:${key}`))
+}
+
+function removeLocal(key: string): void {
+  return localStorage.removeItem(`${appName}:${key}`)
 }
 
 function setSession(key: string, value: any) {

@@ -48,6 +48,13 @@
       >
         <button class="van-action-sheet__item">导出笔记</button>
       </a>
+      <button
+        class="van-action-sheet__item"
+        style="color: red"
+        @click="handleDelete"
+      >
+        删除笔记
+      </button>
     </van-action-sheet>
     <!-- <van-action-sheet
       v-model:show="showToc"
@@ -61,61 +68,12 @@
 
 <script setup lang="ts">
 import { ref, onMounted, computed, onBeforeUnmount } from 'vue'
-import { Dialog, Notify } from 'vant'
+import { Notify } from 'vant'
 import { useRouter } from 'vue-router'
 import { useEditorOptions } from '@/utils/useActionSheet'
-import useFile from '@/utils/useFile'
 import { useExport } from '@/utils/useExport'
+import { useText } from '@/utils/useText'
 import Icon from '@/components/icons/navbar.vue'
-
-const BEGIN_TEXT = '## 在此编辑您的内容' //记录初始文本，如果没有修改，则不需要保存
-let saveText = '' //记录上次保存的内容，如果有本地内容未保存，则在退出时候给提示
-
-const useText = () => {
-  const text = ref(BEGIN_TEXT)
-
-  const saveFileName = computed(() => {
-    const title = text.value.split('\n')[0]
-    if (title[0] == '#') {
-      return title.replace(/#+ /g, '')
-    } else {
-      return title
-    }
-  })
-
-  const afterRead = async (file) => {
-    showMore.value = false
-    await onImportFiles(file)
-    const result = fileMetaList.value[0]?.content
-    if (result) {
-      text.value = result
-    } else {
-      Notify('读取文件出现错误')
-    }
-  }
-
-  // 目前仅实现了在文末加文字的功能...（需要知道光标位置？）
-  // const addText = (txt = '### 这是一个**可爱的**三级标题哦！') => {
-  //   text.value += '\n' + txt
-  // }
-
-  // 官方提供的例子
-  // selected 为当前选中的文本
-  // editor.insert((selected) => {
-  //   const prefix = '**'
-  //   const suffix = '**'
-  //   const content = selected || '粗体'
-
-  //   return {
-  //     // 要插入的文本
-  //     text: `${prefix}${content}${suffix}`,
-  //     // 插入后要选中的文本
-  //     selected: content
-  //   }
-  // })
-
-  return { text, saveFileName, afterRead }
-}
 
 const useMode = () => {
   // type Mode = 'edit' | 'preview' | 'editable'
@@ -202,33 +160,17 @@ const useKeyboard = () => {
   return { editorHeight }
 }
 
-const { fileMetaList, onImportFiles } = useFile()
 const { getDownloadLink } = useExport()
-const { text, saveFileName, afterRead } = useText()
+const { showMore, hideMore } = useEditorOptions()
+const { text, saveFileName, onSave, handleDelete, afterRead, checkIfSave } =
+  useText(hideMore)
 const { mode, isEdit, showPreview } = useMode()
-const { showMore } = useEditorOptions()
 const { editorHeight } = useKeyboard()
 const router = useRouter()
 
-const checkIfSave = async () => {
-  if (text.value == BEGIN_TEXT || text.value == saveText) {
-    return true
-  } else {
-    try {
-      await Dialog.confirm({
-        title: '确认返回吗？',
-        message: '笔记不会自动保存哦'
-      })
-      return true
-    } catch {
-      return false
-    }
-  }
-}
-
 const onBack = () => {
   checkIfSave().then((val) => {
-    console.log(val)
+    // console.log(val)
     if (val == true) {
       router.push('/notes')
     }
@@ -249,23 +191,9 @@ const onBack = () => {
   // }
 }
 
-const onSave = () => {
-  // 保存
-  saveText = text.value
-  Notify({ type: 'success', message: `保存成功`, duration: 800 })
-  // 返回
-  // if (setting.backOnSave) {
-  //   router.push('/notes')
-  // }
-}
-
 onMounted(() => {
   window.onbeforeunload = function closeWindow() {
     var message = '你确定要关闭吗？'
-    //   e = e || window.event
-    // if (e) {
-    //   e.returnValue = message // IE
-    // }
     return message
   }
 })

@@ -1,7 +1,7 @@
 <template>
   <Page title="MyNote" current="notes">
     <template #title-left>
-      <van-button size="small">
+      <van-button size="small" @click="handleSync">
         <Icon name="sync" />
       </van-button>
     </template>
@@ -36,7 +36,7 @@
         v-for="article in articleList"
         :key="article.id"
       >
-        <ArticleListItem :article="article" @click="onEdit(article.id)" />
+        <ArticleListItem :article="article" @click="onEdit(article.postId)" />
       </van-cell-group>
       <!-- </van-row>
         </van-collapse>
@@ -49,15 +49,21 @@
 import Page from '@/components/page.vue'
 import ArticleListItem from '@/components/article-list-item.vue'
 import Icon from '@/components/icons/navbar.vue'
-import { articleList } from '@/utils/useArticle'
+import { useArticle } from '@/utils/useArticle'
 import { useRouter } from 'vue-router'
 import { ref } from 'vue'
 const router = useRouter()
+const { articleList, getArticleList } = useArticle()
 // 多选
 const showCheckbox = ref(false)
 
-const onEdit = (id: number) => {
+const onEdit = (id: string) => {
   router.push('/post?id=' + id)
+}
+
+const handleSync = () => {
+  getArticleList()
+  // 反馈：成功 / 失败
 }
 </script>
 

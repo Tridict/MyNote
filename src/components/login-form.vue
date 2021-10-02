@@ -44,10 +44,11 @@
 
 <script setup lang="ts">
 import { onMounted, reactive } from 'vue'
+import { useRouter } from 'vue-router'
 import { Notify } from 'vant'
 import store from '@/utils/stores'
-import { useRouter } from 'vue-router'
-import { initLc, login } from '@/api/lc'
+import { getQueryParams } from '@/utils/urlQuery'
+import { signUp, login } from '@/api/lc'
 const router = useRouter()
 
 const status = reactive({
@@ -63,7 +64,7 @@ const data = reactive({
   password: '',
   rememberKeys: false,
   rememberUsername: false,
-  leanCloudKeys: { appId: '', appKey: '', serverURL: '' }
+  leanCloudKeys: { appId: '', key: '', BASE_URL: '' }
 })
 
 // 校验函数返回 true 表示校验通过，false 表示不通过
@@ -74,9 +75,10 @@ const keysValidator = (val: string) => {
   }
   data.leanCloudKeys = {
     appId: keyArray[0],
-    appKey: keyArray[1],
-    serverURL: keyArray[2]
+    key: keyArray[1],
+    BASE_URL: keyArray[2]
   }
+  store.setLocal('leanCloudKeys', data.leanCloudKeys)
   return true
 }
 
@@ -84,28 +86,57 @@ const onSubmit = () => {
   //表单验证
   if (keysValidator(data.keys)) {
     onLogin()
-  } 
-  // else {
-  //   console.log(`LeanCloud字符串可能不正确`)
-  // }
+  }
+  else {
+    console.log(`LeanCloud字符串可能不正确`)
+  }
 }
 
-const onLogin = async () => {
+const onSignUp = async () => {
   rememberValues()
-  if (!status.isLcInitiated) {
-    status.isLcInitiated = await initLc(data.leanCloudKeys)
-    // Lc请求数据
-    // if (!status.isLcInitiated) {
-    //   console.log('fewfcaew')
-    // }
-  }
   try {
-    await login({ username: data.username, password: data.password })
+    const userinfo = await signUp({
+      username: data.username,
+      password: data.password
+    })
+    store.setLocal('LC_userinfo', userinfo)
     Notify({
       type: 'success',
-      message: `你好，${data.username}，登录成功啦！`
+      message: `你好，${data.username}，注册成功啦！`
     })
     router.push('/notes')
+  } catch (error) {
+    console.log(error)
+    Notify(`${error}`)
+  }
+}
+
+const onLogin = async (mode = '登录') => {
+  rememberValues()
+  try {
+    let userinfo = {}
+    if (mode === '注册') {
+      userinfo = await signUp({
+        username: data.username,
+        password: data.password
+      })
+    } else {
+      userinfo = await login({
+        username: data.username,
+        password: data.password
+      })
+    }
+    store.setLocal('LC_userinfo', userinfo)
+    Notify({
+      type: 'success',
+      message: `你好，${data.username}，${mode}成功啦！`
+    })
+    const redirect = getQueryParams('redirect')
+    if (typeof redirect === 'string') {
+      router.push(redirect)
+    } else {
+      router.push('/notes')
+    }
   } catch (error) {
     console.log(error)
     Notify(`${error}`)

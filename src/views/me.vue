@@ -13,7 +13,9 @@
           </template>
         </van-field>
       </van-cell-group>
-      <van-button class="btn" block to="/login">退出登录</van-button>
+      <van-button class="btn" block to="/login" @click="logOut">
+        退出登录
+      </van-button>
     </template>
   </Page>
 </template>
@@ -21,10 +23,22 @@
 <script setup lang="ts">
 import Page from '@/components/page.vue'
 import { ref } from '@vue/reactivity'
+import { onMounted } from '@vue/runtime-core'
+import store from '@/utils/stores'
 
-const username = 'cora'
+const username = ref('')
 const isAutoDark = ref(false)
 const isDark = ref(false)
+
+const setUsername = () => {
+  username.value = store.get('LC_userinfo')?.username || ''
+}
+
+const logOut = () => {
+  store.removeLocal('LC_userinfo')
+}
+
+onMounted(setUsername)
 </script>
 
 <style lang="scss" scoped>

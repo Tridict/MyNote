@@ -1,16 +1,7 @@
 import { createRouter, createWebHashHistory, RouteRecordRaw } from 'vue-router'
-import Home from '@/views/home.vue'
+import store from '@/utils/stores'
 
 const routes: Array<RouteRecordRaw> = [
-  {
-    path: '/',
-    name: 'Home',
-    component: Home,
-    meta: {
-      order: 0,
-      transition: 'fade'
-    }
-  },
   {
     path: '/login',
     name: 'Login',
@@ -47,7 +38,8 @@ const routes: Array<RouteRecordRaw> = [
     component: () => import(/* webpackChunkName: "main" */ '@/views/notes.vue'),
     meta: {
       order: 1,
-      transition: 'fade'
+      transition: 'fade',
+      // keepAlive: true
     }
   },
   // {
@@ -93,17 +85,21 @@ const router = createRouter({
   routes
 })
 
-// 暂时当作都已经登录
-const isAuthenticated = true
 
 // 检查是否已登录
 router.beforeEach((to, from) => {
+  const isAuthenticated = store.get('LC_userinfo')?.sessionToken
   if (to.name !== 'Login' && !isAuthenticated) {
     // 如果未登录，则重定向到登录页面
     return {
       path: '/login',
       // 保存我们所在的位置，以便以后再来
       query: { redirect: to.fullPath }
+    }
+  }
+  if (to.path === '/' && isAuthenticated) {
+    return {
+      path: '/notes'
     }
   }
 })
