@@ -2,11 +2,14 @@
   <Page title="MyNote" current="notes">
     <template #title-left>
       <van-button size="small" @click="handleSync">
-        <Icon name="sync" />
+        <Icon name="sync" :loading="status.isSyncing" />
       </van-button>
     </template>
     <template #title-right>
-      <van-button size="small" @click="showCheckbox = !showCheckbox">
+      <van-button
+        size="small"
+        @click="status.showCheckbox = !status.showCheckbox"
+      >
         <Icon name="showMore" />
       </van-button>
       <van-button size="small" to="/post">
@@ -30,13 +33,18 @@
                 v-if="showCheckbox"
               />
             </transition> -->
-      <van-cell-group
-        inset
-        class="article-item"
-        v-for="article in articleList"
-        :key="article.id"
-      >
-        <ArticleListItem :article="article" @click="onEdit(article.postId)" />
+      <template v-if="articleList?.length">
+        <van-cell-group
+          inset
+          class="article-item"
+          v-for="article in articleList"
+          :key="article.id"
+        >
+          <ArticleListItem :article="article" @click="onEdit(article.postId)" />
+        </van-cell-group>
+      </template>
+      <van-cell-group inset class="article-item article-item__skeleton" v-else>
+        <van-skeleton title :row="4" />
       </van-cell-group>
       <!-- </van-row>
         </van-collapse>
@@ -51,25 +59,38 @@ import ArticleListItem from '@/components/article-list-item.vue'
 import Icon from '@/components/icons/navbar.vue'
 import { useArticle } from '@/utils/useArticle'
 import { useRouter } from 'vue-router'
-import { ref } from 'vue'
+import { reactive, ref } from 'vue'
+import { Notify } from 'vant'
 const router = useRouter()
 const { articleList, getArticleList } = useArticle()
 // 多选
-const showCheckbox = ref(false)
+const status = reactive({
+  isSyncing: false,
+  showCheckbox: false
+})
 
 const onEdit = (id: string) => {
   router.push('/post?id=' + id)
 }
 
-const handleSync = () => {
-  getArticleList()
-  // 反馈：成功 / 失败
+const handleSync = async () => {
+  status.isSyncing = true
+  try {
+    await getArticleList()
+    Notify({ type: 'success', message: '笔记清单同步成功！' })
+  } catch (error) {
+    Notify('笔记清单同步失败')
+  }
+  status.isSyncing = false
 }
 </script>
 
 <style lang="scss" scoped>
 .article-item {
   margin: $margin-items;
+  &__skeleton {
+    padding: $margin-items;
+  }
 }
 
 :deep().van-button--small {

@@ -26,7 +26,7 @@ const routes: Array<RouteRecordRaw> = [
     path: '/tool-page',
     name: 'ToolPage',
     component: () =>
-      import(/* webpackChunkName: "main" */ '@/components/toolpage.vue'),
+      import(/* webpackChunkName: "main" */ '@/components/spyUrlwp.vue'),
     meta: {
       order: 1,
       transition: 'slide-left'

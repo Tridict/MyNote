@@ -25,8 +25,6 @@ defineProps<{
 </script>
 
 <style lang="scss" scoped>
-$tab-bar-height: 3.125rem;
-
 .page-wrap {
   height: calc(100vh - $tab-bar-height);
   display: flex;

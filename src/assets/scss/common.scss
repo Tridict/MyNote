@@ -14,7 +14,6 @@ body {
   background: $bg;
 }
 
-// :deep().van-stepper {
-//   display: flex;
-//   align-items: center;
-// }
+.van-notify {
+  top: $tab-bar-height;
+}

@@ -3,19 +3,11 @@
     <van-nav-bar :title="title">
       <template #left>
         <van-button size="small" @click="onBack">
-          <!-- <van-icon
-            size="20"
-            name="https://api.iconify.design/mdi:chevron-left.svg"
-          /> -->
           <Icon name="back" />
         </van-button>
       </template>
       <template #right>
         <van-button size="small">
-          <!-- <van-icon
-            size="16"
-            name="https://api.iconify.design/fa-solid:ellipsis-h.svg"
-          /> -->
           <Icon name="showMore" />
         </van-button>
       </template>
@@ -23,8 +15,6 @@
 
     <!-- 主要部分 -->
     <div class="content-wrap">
-      <!-- <slot name="label" /> -->
-      <!-- {{ label }} -->
       将微信公众号文章收藏到 LeanCloud 数据库。仅文字。
     </div>
     <van-cell-group inset>
@@ -36,7 +26,8 @@
     </van-cell-group>
     <div class="btn-wrap">
       <van-button type="primary" block round @click="handleAnalyze">
-        分析
+        <van-loading v-if="status.isAnalyzing" size="20"/>
+        <span v-else>分析</span>
       </van-button>
     </div>
     <div class="content-wrap spy-result">
@@ -59,7 +50,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { Notify } from 'vant'
 // import { useEditorOptions } from '@/utils/useActionSheet'
@@ -67,6 +58,9 @@ import { createNote } from '@/api/notes'
 import { spy } from '@/api/spy'
 import Icon from '@/components/icons/navbar.vue'
 
+const status = reactive({
+  isAnalyzing: false
+})
 const title = '公众号文章收藏'
 const url = ref('')
 const resultInfos = ref('')
@@ -80,6 +74,7 @@ const onBack = () => {
 }
 
 const handleAnalyze = async () => {
+  status.isAnalyzing = true
   try {
     const result = await spy(url.value)
     console.log(result)
@@ -90,7 +85,7 @@ const handleAnalyze = async () => {
         if (meta && meta.length) {
           for (const i in meta) {
             if (meta[i]?.meta_key == 'title') {
-              resultTable=`# [${meta[i]?.meta_value}](${url.value})\n${resultTable}`
+              resultTable=`# [${meta[i]?.meta_value}](${url.value})\n\n${resultTable}`
             } else {
               resultTable += `\n${meta[i]?.meta_key}: ${JSON.stringify(meta[i]?.meta_value)}`
             }
@@ -102,6 +97,7 @@ const handleAnalyze = async () => {
   } catch (error) {
     console.log(error)
   }
+  status.isAnalyzing = false
 }
 
 const saveAsNote = async () => {

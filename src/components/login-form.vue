@@ -36,7 +36,8 @@
     </van-cell-group>
     <div class="btn-wrap">
       <van-button round block type="primary" native-type="submit">
-        提交
+        <van-loading v-if="status.isLoggingIn"/>
+        <span v-else>提交</span>
       </van-button>
     </div>
   </van-form>
@@ -52,9 +53,6 @@ import { signUp, login } from '@/api/user'
 const router = useRouter()
 
 const status = reactive({
-  username: '',
-  isLcInitiated: false,
-  isLoggedIn: false,
   isLoggingIn: false
 })
 
@@ -92,26 +90,8 @@ const onSubmit = () => {
   }
 }
 
-const onSignUp = async () => {
-  rememberValues()
-  try {
-    const userinfo = await signUp({
-      username: data.username,
-      password: data.password
-    })
-    store.setLocal('LC_userinfo', userinfo)
-    Notify({
-      type: 'success',
-      message: `你好，${data.username}，注册成功啦！`
-    })
-    router.push('/notes')
-  } catch (error) {
-    console.log(error)
-    Notify(`${error}`)
-  }
-}
-
 const onLogin = async (mode = '登录') => {
+  status.isLoggingIn = true
   rememberValues()
   try {
     let userinfo = {}
@@ -141,6 +121,7 @@ const onLogin = async (mode = '登录') => {
     console.log(error)
     Notify(`${error}`)
   }
+  status.isLoggingIn = false
 }
 
 const rememberValues = () => {

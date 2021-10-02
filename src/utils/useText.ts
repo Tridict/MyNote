@@ -1,19 +1,32 @@
-import { ref, computed, onBeforeMount, Ref } from 'vue'
+import { ref, computed, onBeforeMount, Ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import { Dialog, Notify } from 'vant'
 import { decode } from 'js-base64'
 import { VantFile } from '@/types'
 import useFile from '@/utils/useFile'
 import { getQueryParams } from '@/utils/urlQuery'
-import { getNote, updateNote, createNote, delNote, publicNote, pinnedNote } from '@/api/notes'
+import {
+  getNote,
+  updateNote,
+  createNote,
+  delNote,
+  publicNote,
+  pinnedNote
+} from '@/api/notes'
 
-export const useText = (mode: Ref<'edit' | 'preview' | 'editable'>, hideMore: ()=>void) => {
+export const useText = (mode: Ref<'edit' | 'preview' | 'editable'>) => {
   const BEGIN_TEXT = '## 在此编辑您的内容' //记录初始文本，如果没有修改，则不需要保存
   let saveText = '' //记录上次保存的内容，如果有本地内容未保存，则在退出时候给提示
   const text = ref('')
   const postId = ref('')
   const { fileMetaList, onImportFiles } = useFile()
   const router = useRouter()
+  const status = reactive({
+    isImporting: false,
+    isSaving: false,
+    isPublicing: false,
+    isPinning: false
+  })
 
   const saveFileName = computed(() => {
     const title = text.value.split('\n')[0]
@@ -25,7 +38,7 @@ export const useText = (mode: Ref<'edit' | 'preview' | 'editable'>, hideMore: ()
   })
 
   const importNote = async (file: VantFile) => {
-    hideMore()
+    status.isImporting = true
     await onImportFiles(file)
     const result = fileMetaList.value[0]?.content
     if (result) {
@@ -33,9 +46,11 @@ export const useText = (mode: Ref<'edit' | 'preview' | 'editable'>, hideMore: ()
     } else {
       Notify('读取文件出现错误')
     }
+    status.isImporting = false
   }
 
   const handleSave = async () => {
+    status.isSaving = true
     // 保存
     try {
       if (postId.value) {
@@ -50,36 +65,51 @@ export const useText = (mode: Ref<'edit' | 'preview' | 'editable'>, hideMore: ()
       Notify({ type: 'success', message: `保存成功`, duration: 800 })
       // 返回
       // if (setting.backhandleSave) {
-        // router.push('/notes')
+      // router.push('/notes')
       // }
     } catch (error) {
       Notify(`保存失败：${error}`)
     }
+    status.isSaving = false
   }
 
-  const deleteNote = async () => {
+  const deleteNote = () => {
+    // 确认删除的回调
+    const deletingNote = (action: string): Promise<boolean> =>
+      new Promise((resolve) => {
+        if (action === 'confirm') {
+          if (postId.value) {
+            delNote(postId.value)
+              .then(() => {
+                Notify({ type: 'success', message: `操作成功：笔记已删除` })
+                router.push('/notes')
+              })
+              .catch((error) => {
+                Notify(`删除失败：${error}`)
+              })
+              .finally(() => {
+                resolve(true)
+              })
+          } else {
+            Notify(`删除失败：笔记未保存，不需要删除`)
+            resolve(true)
+          }
+        } else {
+          // 拦截取消操作
+          resolve(true)
+        }
+      })
+
     // 首先弹出窗口确认是否要删除
-    const isDel = await Dialog.confirm({
+    Dialog.confirm({
       title: '确定要删除笔记吗？',
-      message: '该操作不可恢复'
+      message: '该操作不可恢复',
+      beforeClose: deletingNote
     })
-    if (!isDel) {
-      // 这个似乎控制失败了
-      hideMore()
-      return
-    }
-    try {
-      if (postId.value) {
-        await delNote(postId.value)
-      }
-      Notify({ type: 'success', message: `笔记已删除` })
-      router.push('/notes')
-    } catch (error) {
-      Notify(`删除失败：${error}`)
-    }
   }
 
   const handlePublic = async () => {
+    status.isPublicing = true
     try {
       if (postId.value) {
         await publicNote(postId.value)
@@ -90,19 +120,22 @@ export const useText = (mode: Ref<'edit' | 'preview' | 'editable'>, hideMore: ()
     } catch (error) {
       Notify(`${error}`)
     }
+    status.isPublicing = false
   }
 
   const handlePin = async () => {
+    status.isPinning = true
     try {
       if (postId.value) {
         await pinnedNote(postId.value)
-        Notify({ type: 'success', message: `笔记置顶成功` })
+        Notify({ type: 'success', message: `笔记置顶成功`})
       } else {
         Notify(`请先保存笔记`)
       }
     } catch (error) {
       Notify(`${error}`)
     }
+    status.isPinning = false
   }
 
   const checkIfSaved = async () => {
@@ -161,5 +194,15 @@ export const useText = (mode: Ref<'edit' | 'preview' | 'editable'>, hideMore: ()
   //   }
   // })
 
-  return { text, saveFileName, handlePin, handlePublic, handleSave, deleteNote, importNote, checkIfSaved }
+  return {
+    text,
+    saveFileName,
+    status,
+    handlePin,
+    handlePublic,
+    handleSave,
+    deleteNote,
+    importNote,
+    checkIfSaved
+  }
 }

@@ -14,7 +14,7 @@
           <Icon name="showPreview" :active="isEdit" />
         </van-button>
         <van-button size="small" @click="handleSave">
-          <Icon name="save" />
+          <Icon name="save" :loading="status.isSaving" />
         </van-button>
       </template>
     </van-nav-bar>
@@ -48,7 +48,7 @@
       >
         <button class="van-action-sheet__item" @click="showMore = false">导出笔记</button>
       </a>
-      <button
+      <!-- <button
         class="van-action-sheet__item"
         @click="handlePin"
       >
@@ -62,7 +62,7 @@
         <div class="uploader-warn van-action-sheet__subname">
           公开以后，所有人都将能看到您的笔记（只读）
         </div>
-      </button>
+      </button> -->
       <button
         class="van-action-sheet__item"
         style="color: red"
@@ -105,10 +105,10 @@ const useMode = () => {
 const editorHeight = ref('calc(100vh - var(--van-nav-bar-height))')
 // const { editorHeight } = useKeyboard()
 const { getDownloadLink } = useExport()
-const { showMore, hideMore } = useEditorOptions()
+const { showMore } = useEditorOptions()
 const { mode, isEdit, showPreview } = useMode()
-const { text, saveFileName, handlePin, handlePublic, handleSave, deleteNote, importNote, checkIfSaved } =
-  useText(mode, hideMore)
+const { text, status, saveFileName, handlePin, handlePublic, handleSave, deleteNote, importNote, checkIfSaved } =
+  useText(mode)
 const router = useRouter()
 
 const handleBack = () => {
@@ -225,20 +225,9 @@ onBeforeUnmount(() => {
         border-top: 1px solid #ddd;
         border-right: 0;
       }
-      // .v-md-editor__preview-wrapper {
-      // }
       .v-md-editor__editor-wrapper,
       .v-md-editor__preview-wrapper {
-        // padding: 2rem;
         flex: 1;
-      }
-      // .scrollbar {
-      // height: 37.1vh;
-      // padding: 2rem;
-      // }
-      .vuepress-markdown-body:not(.custom),
-      .v-md-textarea-editor textarea {
-        padding: 0;
       }
     }
   }
