@@ -13,26 +13,6 @@ const routes: Array<RouteRecordRaw> = [
     }
   },
   {
-    path: '/upload',
-    name: 'Upload',
-    component: () =>
-      import(/* webpackChunkName: "main" */ '@/components/_upload-box.vue'),
-    meta: {
-      order: 1,
-      transition: 'fade'
-    }
-  },
-  {
-    path: '/tool-page',
-    name: 'ToolPage',
-    component: () =>
-      import(/* webpackChunkName: "main" */ '@/components/spyUrlwp.vue'),
-    meta: {
-      order: 1,
-      transition: 'slide-left'
-    }
-  },
-  {
     path: '/notes',
     name: 'Notes',
     component: () => import(/* webpackChunkName: "main" */ '@/views/notes.vue'),
@@ -42,19 +22,11 @@ const routes: Array<RouteRecordRaw> = [
       // keepAlive: true
     }
   },
-  // {
-  //   path: '/post',
-  //   name: 'Post',
-  //   component: () => import(/* webpackChunkName: "post" */ '@/views/post.vue'),
-  //   meta: {
-  //     order: 10
-  //   }
-  // },
   {
     path: '/post',
     name: 'Post',
     component: () =>
-      import(/* webpackChunkName: "post" */ '@/views/post.vue'),
+      import(/* webpackChunkName: "post" */ '@/views/subpages/post.vue'),
     meta: {
       order: 11,
       transition: 'slide-left'
@@ -67,6 +39,16 @@ const routes: Array<RouteRecordRaw> = [
     meta: {
       order: 2,
       transition: 'fade'
+    }
+  },
+  {
+    path: '/tool-spy',
+    name: 'ToolSpy',
+    component: () =>
+      import(/* webpackChunkName: "main" */ '@/views/subpages/toolSpy.vue'),
+    meta: {
+      order: 1,
+      transition: 'slide-left'
     }
   },
   {

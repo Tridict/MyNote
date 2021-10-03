@@ -24,7 +24,7 @@
 <script setup lang="ts">
 import { ref, watch, defineProps } from 'vue'
 import { useRouter } from 'vue-router'
-import Icon from '@/components/icons/tabbar.vue'
+import Icon from '@/components/common/icons/tabbar-icon.vue'
 
 const router = useRouter()
 const props = defineProps<{

@@ -18,7 +18,7 @@ const getUser = (userId?: string): User => {
   }
 }
 
-interface NoteRes {
+export interface NoteRes {
   content: string
   createdAt: string
   deleted: boolean
@@ -77,40 +77,41 @@ export const updateNote = (
   })
 }
 
-export const addTag = (params: { tags: string[]; postId: string }) => {
+// 添加标签（还要动两个表...）
+export const addTag = (params: { newTags: string[], oldTags: string[]; postId: string }) => {
   return axios.put(`/1.1/classes/Note/${params.postId}`, {
-    tags: JSON.stringify(params.tags)
+    tags: [...params.oldTags, ...params.newTags]
   })
 }
 
 // 公开笔记（所有用户可读）————会遇到不能add fields的问题？？？
-export const publicNote = (postId: string) => {
+export const makePublicNote = (postId: string) => {
   const userId = store.get('LC_userinfo')?.objectId
   return axios.put(`/1.1/classes/Note/${postId}`, {
     is_public_read: true,
-    tags: [{
-      "__type": "Pointer",
-      "className": "Tag",
-      "objectId": "615851e1ec1d407bb22da428"
-    }],
-    ACL: { [userId]: {write: true},'*': { read: true } }
+    tags: ["公开"],
+    ACL: { [userId]: { write: true }, '*': { read: true } }
   })
 }
 
 // 置顶笔记：需要在排序上、展示上配套；还有和取消置顶配套...
-export const pinnedNote = (postId: string) => {
+export const pinnedNote = (postId: string, oldPinned: boolean) => {
   return axios.put(`/1.1/classes/Note/${postId}`, {
-    pinned: true
+    pinned: !oldPinned
   })
 }
 
-// 分享笔记给指定用户（需要用户的objectId -- 如何查询？？）
+// 分享笔记给指定用户（需要用户的objectId -- 如何查询？？shared_to字段写）
 export const shareNote = (
-  ACL: { [key: string]: { write: boolean; read: boolean } },
-  postId: string
+  sharedUserId: string,
+  postId: string,
+  oldACL: { [key: string]: { write: boolean; read: boolean } },
+  oldSharedTo: string[]
 ) => {
+  const ACL = Object.assign({ [sharedUserId]: { write: true, read: true } }, oldACL)
   return axios.put(`/1.1/classes/Note/${postId}`, {
-    ACL
+    ACL,
+    shared_to: [...oldSharedTo, sharedUserId]
   })
 }
 

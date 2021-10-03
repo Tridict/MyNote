@@ -16,7 +16,7 @@
 </template>
 
 <script setup lang="ts">
-import Tabbar from '@/components/tabbar.vue'
+import Tabbar from '@/components/common/tabbar.vue'
 import { defineProps } from 'vue'
 defineProps<{
   title: string
@@ -36,7 +36,7 @@ defineProps<{
     scrollbar-width: none; /* Firefox */
     -ms-overflow-style: none; /* IE 10+ */
 
-    ::-webkit-scrollbar {
+    &::-webkit-scrollbar {
       display: none; /* Chrome Safari */
     }
   }

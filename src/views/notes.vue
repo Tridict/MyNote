@@ -54,10 +54,10 @@
 </template>
 
 <script setup lang="ts">
-import Page from '@/components/page.vue'
+import Page from '@/components/common/page.vue'
 import ArticleListItem from '@/components/article-list-item.vue'
-import Icon from '@/components/icons/navbar.vue'
-import { useArticle } from '@/utils/useArticle'
+import Icon from '@/components/common/icons/navbar-icon.vue'
+import { useArticle } from '@/utils/notes/useArticle'
 import { useRouter } from 'vue-router'
 import { reactive, ref } from 'vue'
 import { Notify } from 'vant'

@@ -85,10 +85,9 @@
 import { ref, onMounted, computed, onBeforeUnmount } from 'vue'
 // import { Notify } from 'vant'
 import { useRouter } from 'vue-router'
-import { useEditorOptions } from '@/utils/useActionSheet'
-import { useExport } from '@/utils/useExport'
-import { useText } from '@/utils/useText'
-import Icon from '@/components/icons/navbar.vue'
+import { useExport } from '@/utils/notes/useExport'
+import { useText } from '@/utils/notes/useText'
+import Icon from '@/components/common/icons/navbar-icon.vue'
 import { VantFile } from '@/types'
 
 const useMode = () => {
@@ -103,9 +102,9 @@ const useMode = () => {
 }
 
 const editorHeight = ref('calc(100vh - var(--van-nav-bar-height))')
+const showMore = ref(false)
 // const { editorHeight } = useKeyboard()
 const { getDownloadLink } = useExport()
-const { showMore } = useEditorOptions()
 const { mode, isEdit, showPreview } = useMode()
 const { text, status, saveFileName, handlePin, handlePublic, handleSave, deleteNote, importNote, checkIfSaved } =
   useText(mode)

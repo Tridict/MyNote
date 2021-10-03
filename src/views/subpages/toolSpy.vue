@@ -56,7 +56,7 @@ import { Notify } from 'vant'
 // import { useEditorOptions } from '@/utils/useActionSheet'
 import { createNote } from '@/api/notes'
 import { spy } from '@/api/spy'
-import Icon from '@/components/icons/navbar.vue'
+import Icon from '@/components/common/icons/navbar-icon.vue'
 
 const status = reactive({
   isAnalyzing: false

@@ -19,7 +19,7 @@
 
 <script setup lang="ts">
 import { defineProps } from 'vue'
-import { Article } from '@/utils/useArticle'
+import { Article } from '@/utils/notes/useArticle'
 
 defineProps<{ article: Article }>()
 </script>

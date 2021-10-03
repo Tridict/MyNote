@@ -3,39 +3,32 @@ import { useRouter } from 'vue-router'
 import { Dialog, Notify } from 'vant'
 import { decode } from 'js-base64'
 import { VantFile } from '@/types'
-import useFile from '@/utils/useFile'
+import useFile from '@/utils/notes/useFile'
 import { getQueryParams } from '@/utils/urlQuery'
 import {
   getNote,
   updateNote,
   createNote,
   delNote,
-  publicNote,
+  makePublicNote,
   pinnedNote
 } from '@/api/notes'
+import { NoteRes } from '@/api/notes'
 
 export const useText = (mode: Ref<'edit' | 'preview' | 'editable'>) => {
   const BEGIN_TEXT = '## 在此编辑您的内容' //记录初始文本，如果没有修改，则不需要保存
   let saveText = '' //记录上次保存的内容，如果有本地内容未保存，则在退出时候给提示
   const text = ref('')
   const postId = ref('')
-  const { fileMetaList, onImportFiles } = useFile()
-  const router = useRouter()
+  const postInfo = ref<NoteRes>()
   const status = reactive({
     isImporting: false,
     isSaving: false,
     isPublicing: false,
     isPinning: false
   })
-
-  const saveFileName = computed(() => {
-    const title = text.value.split('\n')[0]
-    if (title[0] == '#') {
-      return title.replace(/#+ /g, '')
-    } else {
-      return title
-    }
-  })
+  const { fileMetaList, onImportFiles } = useFile()
+  const router = useRouter()
 
   const importNote = async (file: VantFile) => {
     status.isImporting = true
@@ -112,7 +105,7 @@ export const useText = (mode: Ref<'edit' | 'preview' | 'editable'>) => {
     status.isPublicing = true
     try {
       if (postId.value) {
-        await publicNote(postId.value)
+        await makePublicNote(postId.value)
         Notify({ type: 'success', message: `笔记已公开` })
       } else {
         Notify(`请先保存笔记`)
@@ -126,8 +119,8 @@ export const useText = (mode: Ref<'edit' | 'preview' | 'editable'>) => {
   const handlePin = async () => {
     status.isPinning = true
     try {
-      if (postId.value) {
-        await pinnedNote(postId.value)
+      if (postId.value && postInfo.value) {
+        await pinnedNote(postId.value, postInfo.value.pinned)
         Notify({ type: 'success', message: `笔记置顶成功`})
       } else {
         Notify(`请先保存笔记`)
@@ -154,14 +147,24 @@ export const useText = (mode: Ref<'edit' | 'preview' | 'editable'>) => {
     }
   }
 
+  const saveFileName = computed(() => {
+    const title = text.value.split('\n')[0]
+    if (title[0] == '#') {
+      return title.replace(/#+ /g, '')
+    } else {
+      return title
+    }
+  })
+
   onBeforeMount(async () => {
     const objId = getQueryParams('id')
     if (objId) {
       postId.value = objId
       try {
         const result = await getNote(objId)
-        // router.replace('/post')
         text.value = decode(result.content)
+        console.log(result)
+        postInfo.value = result
         saveText = text.value
       } catch (error) {
         console.log(error)
@@ -175,7 +178,7 @@ export const useText = (mode: Ref<'edit' | 'preview' | 'editable'>) => {
   })
 
   // 目前仅实现了在文末加文字的功能...（需要知道光标位置？）
-  // const addText = (txt = '### 这是一个**可爱的**三级标题哦！') => {
+  // const addText = (txt = '*') => {
   //   text.value += '\n' + txt
   // }
 
