@@ -76,7 +76,6 @@
 
 <style lang="scss">
 html {
-  background: rgb(219, 43, 43);
   position: relative;
   body {
     background: $bg;

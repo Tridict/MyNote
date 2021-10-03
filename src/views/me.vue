@@ -36,6 +36,7 @@ const setUsername = () => {
 
 const logOut = () => {
   store.removeLocal('LC_userinfo')
+  store.removeLocal('leanCloundKeys')
 }
 
 onMounted(setUsername)
