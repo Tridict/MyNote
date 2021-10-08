@@ -1,4 +1,4 @@
-import { ref, computed, onBeforeMount, Ref, reactive } from 'vue'
+import { ref, computed, onBeforeMount, Ref, reactive, toRef } from 'vue'
 import { useRouter } from 'vue-router'
 import { Dialog, Notify } from 'vant'
 import { decode } from 'js-base64'
@@ -13,14 +13,23 @@ import {
   makePublicNote,
   pinnedNote
 } from '@/api/notes'
-import { NoteRes } from '@/api/notes'
+
 
 export const useText = (mode: Ref<'edit' | 'preview' | 'editable'>) => {
   const BEGIN_TEXT = '## 在此编辑您的内容' //记录初始文本，如果没有修改，则不需要保存
   let saveText = '' //记录上次保存的内容，如果有本地内容未保存，则在退出时候给提示
-  const text = ref('')
-  const postId = ref('')
-  const postInfo = ref<NoteRes>()
+  const postInfo = reactive({
+    content: '',
+    // createdAt: '',
+    // deleted: boolean,
+    // is_draft: boolean,
+    is_public_read: false,
+    is_public_write: false,
+    pinned: false,
+    tags: [''],
+    postId: ''
+    // updatedAt: string
+  })
   const status = reactive({
     isImporting: false,
     isSaving: false,
@@ -30,40 +39,64 @@ export const useText = (mode: Ref<'edit' | 'preview' | 'editable'>) => {
   const { fileMetaList, onImportFiles } = useFile()
   const router = useRouter()
 
+  const init = async () => {
+    const objId = getQueryParams('id')
+    if (objId) {
+      postInfo.postId = objId
+      try {
+        const result = await getNote(objId)
+        postInfo.content = decode(result.content)
+        postInfo.is_public_read = result.is_public_read || false
+        postInfo.is_public_write = result.is_public_write || false
+        postInfo.pinned = result.pinned || false
+        postInfo.tags = result.tags || ['']
+        saveText = postInfo.content
+      } catch (error) {
+        console.log(error)
+        router.replace('/notes')
+        Notify(`${error}`)
+      }
+    } else {
+      mode.value = 'edit'
+      postInfo.content = BEGIN_TEXT
+    }
+  }
+
   const importNote = async (file: VantFile) => {
     status.isImporting = true
     await onImportFiles(file)
     const result = fileMetaList.value[0]?.content
     if (result) {
-      text.value = result
+      postInfo.content = result
+      postInfo.postId = ''
+      router.replace('/post')
     } else {
       Notify('读取文件出现错误')
     }
     status.isImporting = false
   }
 
-  const handleSave = async () => {
+  const saveNote = async () => {
     status.isSaving = true
     // 保存
     try {
-      if (postId.value) {
-        await updateNote({ noteContent: text.value, postId: postId.value })
+      if (postInfo.postId) {
+        await updateNote({ noteContent: postInfo.content, postId: postInfo.postId })
       } else {
         // 还没有postId，新建笔记
-        const res = await createNote(text.value)
-        postId.value = res.objectId
-        router.replace('/post?id=' + postId.value)
+        const res = await createNote(postInfo.content)
+        postInfo.postId = res.objectId
+        router.replace('/post?id=' + postInfo.postId)
       }
-      saveText = text.value
+      saveText = postInfo.content
       Notify({ type: 'success', message: `保存成功`, duration: 800 })
-      // 返回
-      // if (setting.backhandleSave) {
-      // router.push('/notes')
-      // }
+      status.isSaving = false
+      return true
     } catch (error) {
       Notify(`保存失败：${error}`)
+      status.isSaving = false
+      return false
     }
-    status.isSaving = false
   }
 
   const deleteNote = () => {
@@ -71,8 +104,8 @@ export const useText = (mode: Ref<'edit' | 'preview' | 'editable'>) => {
     const deletingNote = (action: string): Promise<boolean> =>
       new Promise((resolve) => {
         if (action === 'confirm') {
-          if (postId.value) {
-            delNote(postId.value)
+          if (postInfo.postId) {
+            delNote(postInfo.postId)
               .then(() => {
                 Notify({ type: 'success', message: `操作成功：笔记已删除` })
                 router.push('/notes')
@@ -104,8 +137,8 @@ export const useText = (mode: Ref<'edit' | 'preview' | 'editable'>) => {
   const handlePublic = async () => {
     status.isPublicing = true
     try {
-      if (postId.value) {
-        await makePublicNote(postId.value)
+      if (postInfo.postId) {
+        await makePublicNote(postInfo.postId)
         Notify({ type: 'success', message: `笔记已公开` })
       } else {
         Notify(`请先保存笔记`)
@@ -119,9 +152,11 @@ export const useText = (mode: Ref<'edit' | 'preview' | 'editable'>) => {
   const handlePin = async () => {
     status.isPinning = true
     try {
-      if (postId.value && postInfo.value) {
-        await pinnedNote(postId.value, postInfo.value.pinned)
-        Notify({ type: 'success', message: `笔记置顶成功`})
+      if (postInfo.postId) {
+        await pinnedNote(postInfo.postId, postInfo.pinned)
+        const msg = postInfo.pinned ? `取消置顶` : `置顶`
+        postInfo.pinned = !postInfo.pinned
+        Notify({ type: 'success', message: `操作成功：笔记已${msg}` })
       } else {
         Notify(`请先保存笔记`)
       }
@@ -131,8 +166,12 @@ export const useText = (mode: Ref<'edit' | 'preview' | 'editable'>) => {
     status.isPinning = false
   }
 
+  const handleAddtag = () => {
+    console.log('新建标签')
+  }
+
   const checkIfSaved = async () => {
-    if (text.value == BEGIN_TEXT || text.value == saveText) {
+    if (postInfo.content == BEGIN_TEXT || postInfo.content == saveText) {
       return true
     } else {
       try {
@@ -148,7 +187,7 @@ export const useText = (mode: Ref<'edit' | 'preview' | 'editable'>) => {
   }
 
   const saveFileName = computed(() => {
-    const title = text.value.split('\n')[0]
+    const title = postInfo.content.split('\n')[0]
     if (title[0] == '#') {
       return title.replace(/#+ /g, '')
     } else {
@@ -156,30 +195,11 @@ export const useText = (mode: Ref<'edit' | 'preview' | 'editable'>) => {
     }
   })
 
-  onBeforeMount(async () => {
-    const objId = getQueryParams('id')
-    if (objId) {
-      postId.value = objId
-      try {
-        const result = await getNote(objId)
-        text.value = decode(result.content)
-        console.log(result)
-        postInfo.value = result
-        saveText = text.value
-      } catch (error) {
-        console.log(error)
-        router.replace('/notes')
-        Notify(`${error}`)
-      }
-    } else {
-      mode.value = 'edit'
-      text.value = BEGIN_TEXT
-    }
-  })
+  onBeforeMount(init)
 
   // 目前仅实现了在文末加文字的功能...（需要知道光标位置？）
   // const addText = (txt = '*') => {
-  //   text.value += '\n' + txt
+  //   postInfo.content += '\n' + txt
   // }
 
   // 官方提供的例子
@@ -198,12 +218,13 @@ export const useText = (mode: Ref<'edit' | 'preview' | 'editable'>) => {
   // })
 
   return {
-    text,
     saveFileName,
+    postInfo,
     status,
+    handleAddtag,
     handlePin,
     handlePublic,
-    handleSave,
+    saveNote,
     deleteNote,
     importNote,
     checkIfSaved

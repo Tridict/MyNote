@@ -27,7 +27,7 @@ export interface NoteRes {
   is_public_write?: boolean
   objectId: string
   owner: User
-  pinned: boolean
+  pinned?: boolean
   tags?: string[]
   updatedAt: string
 }
@@ -95,7 +95,7 @@ export const makePublicNote = (postId: string) => {
 }
 
 // 置顶笔记：需要在排序上、展示上配套；还有和取消置顶配套...
-export const pinnedNote = (postId: string, oldPinned: boolean) => {
+export const pinnedNote = (postId: string, oldPinned: boolean | undefined) => {
   return axios.put(`/1.1/classes/Note/${postId}`, {
     pinned: !oldPinned
   })

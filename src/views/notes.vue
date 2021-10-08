@@ -34,6 +34,22 @@
               />
             </transition> -->
       <template v-if="articleList?.length">
+        <!-- 置顶文章 -->
+        <div class="pinned-wrap van-hairline--surround">
+          <div class="van-cell-group__title">置顶</div>
+          <van-cell-group
+            inset
+            class="article-item"
+            v-for="article in pinnedArticleList"
+            :key="article.id"
+          >
+            <ArticleListItem
+              :article="article"
+              @click="onEdit(article.postId)"
+            />
+          </van-cell-group>
+        </div>
+        <!-- 其他文章 -->
         <van-cell-group
           inset
           class="article-item"
@@ -62,7 +78,7 @@ import { useRouter } from 'vue-router'
 import { reactive, ref } from 'vue'
 import { Notify } from 'vant'
 const router = useRouter()
-const { articleList, getArticleList } = useArticle()
+const { articleList, pinnedArticleList, getArticleList } = useArticle()
 // 多选
 const status = reactive({
   isSyncing: false,
@@ -90,6 +106,14 @@ const handleSync = async () => {
   margin: $margin-items;
   &__skeleton {
     padding: $margin-items;
+  }
+}
+
+.pinned-wrap {
+  padding-bottom: $margin-items;
+  background: #eee;
+  .article-item {
+    margin-top: 0;
   }
 }
 

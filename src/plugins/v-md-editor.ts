@@ -1,3 +1,5 @@
+// 文档：https://ckang1229.gitee.io/vue-markdown-editor/zh/theme/github.html#%E4%BB%8B%E7%BB%8D
+
 // 基础版
 import VMdEditor from '@kangc/v-md-editor'
 import '@kangc/v-md-editor/lib/style/base-editor.css'

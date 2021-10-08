@@ -2,14 +2,7 @@
   <van-cell :label="article.time">
     <template #title>
       <div class="article-title van-ellipsis">{{ article.title }}</div>
-      <van-tag
-        class="article-tag"
-        v-for="tag in article.tags"
-        :key="tag.id"
-        :color="tag.color || '#7232dd'"
-      >
-        {{ tag.text }}
-      </van-tag>
+      <ArticleTag :tags="article.tags" />
       <div class="van-multi-ellipsis--l3">
         {{ article.abstract }}
       </div>
@@ -20,6 +13,7 @@
 <script setup lang="ts">
 import { defineProps } from 'vue'
 import { Article } from '@/utils/notes/useArticle'
+import ArticleTag from '@/components/common/article-tag.vue'
 
 defineProps<{ article: Article }>()
 </script>
@@ -29,9 +23,7 @@ defineProps<{ article: Article }>()
   font-weight: 700;
   color: $text-black;
 }
-.article-tag {
-  margin-right: 10px;
-}
+
 :deep().van-cell__title {
   max-width: 100%;
 }
