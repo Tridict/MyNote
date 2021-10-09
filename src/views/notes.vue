@@ -110,7 +110,7 @@ const handleSync = async () => {
 }
 
 .pinned-wrap {
-  padding-bottom: $margin-items;
+  padding-bottom: 1px;
   background: #eee;
   .article-item {
     margin-top: 0;

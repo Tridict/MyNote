@@ -2,25 +2,29 @@
   <div class="editor-wrap">
     <van-nav-bar title="MyNote">
       <template #left>
-        <van-button size="small" @click="handleBack">
+        <van-button size="small" @click="handleSave" v-if="isEdit">
+          <Icon name="save" :loading="status.isSaving" />
+        </van-button>
+        <van-button size="small" @click="handleBack" v-else>
           <Icon name="back" />
         </van-button>
       </template>
       <template #right>
-        <van-button size="small" @click="showMore = true">
-          <Icon name="showMore" />
-        </van-button>
         <van-button size="small" @click="showPreview">
           <Icon name="showPreview" :active="isEdit" />
         </van-button>
-        <van-button size="small" @click="handleSave">
-          <Icon name="save" :loading="status.isSaving" />
+        <van-button size="small" @click="showMore = true">
+          <Icon name="showMore" />
         </van-button>
       </template>
     </van-nav-bar>
+    <!-- <div class="tags-wrap">
+      <ArticleTag :tags="getTag(postInfo.tags)" />
+      <van-tag plain @click="handleAddtag">+</van-tag>
+    </div> -->
     <div class="v-md-editor-wrap">
       <v-md-editor
-        v-model="text"
+        v-model="postInfo.content"
         :mode="mode"
         :height="editorHeight"
         left-toolbar="undo redo | toc | ul ol quote table link code | clear"
@@ -35,34 +39,42 @@
     >
       <label class="uploader-wrap">
         <van-uploader accept=".md, .txt" :after-read="handleImport">
-          导入笔记
+          打开笔记
         </van-uploader>
         <div class="uploader-warn van-action-sheet__subname">
-          导入笔记将覆盖您当前输入的内容
+          从本地文件中导入一篇新的笔记，当前未保存内容可能会丢失
         </div>
       </label>
+      <div class="van-hairline--bottom"></div>
       <a
         class="export-wrap"
         :download="saveFileName"
-        :href="getDownloadLink(text)"
+        :href="getDownloadLink(postInfo.content)"
       >
         <button class="van-action-sheet__item" @click="showMore = false">导出笔记</button>
       </a>
-      <!-- <button
+      <div class="van-hairline--bottom"></div>
+      <button
         class="van-action-sheet__item"
         @click="handlePin"
       >
-        置顶笔记
+        <span v-if="postInfo.pinned">取消置顶</span>
+        <span v-else>置顶笔记</span>
       </button>
+      <div class="van-hairline--bottom"></div>
       <button
         class="van-action-sheet__item"
         @click="handlePublic"
+        v-if="!postInfo.is_public_read"
       >
-        公开笔记
-        <div class="uploader-warn van-action-sheet__subname">
-          公开以后，所有人都将能看到您的笔记（只读）
-        </div>
-      </button> -->
+        <span v-if="postInfo.is_public_read">取消公开</span>
+        <span v-else>公开笔记
+          <div class="uploader-warn van-action-sheet__subname">
+            公开以后，所有人都将能看到您的笔记（只读）
+          </div>
+        </span>
+      </button>
+      <div class="van-hairline--bottom"></div>
       <button
         class="van-action-sheet__item"
         style="color: red"
@@ -71,24 +83,19 @@
         删除笔记
       </button>
     </van-action-sheet>
-    <!-- <van-action-sheet
-      v-model:show="showToc"
-      close-on-click-action
-      safe-area-inset-bottom
-    >
-      <div id="toc-wrap"></div>
-    </van-action-sheet> -->
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted, computed, onBeforeUnmount } from 'vue'
 // import { Notify } from 'vant'
+import { VantFile } from '@/types'
+import { getTag } from '@/utils/notes/useArticle'
 import { useRouter } from 'vue-router'
 import { useExport } from '@/utils/notes/useExport'
 import { useText } from '@/utils/notes/useText'
 import Icon from '@/components/common/icons/navbar-icon.vue'
-import { VantFile } from '@/types'
+import ArticleTag from '@/components/common/article-tag.vue'
 
 const useMode = () => {
   type Mode = 'edit' | 'preview' | 'editable'
@@ -106,7 +113,7 @@ const showMore = ref(false)
 // const { editorHeight } = useKeyboard()
 const { getDownloadLink } = useExport()
 const { mode, isEdit, showPreview } = useMode()
-const { text, status, saveFileName, handlePin, handlePublic, handleSave, deleteNote, importNote, checkIfSaved } =
+const { status, postInfo, saveFileName, handleAddtag, handlePin, handlePublic, saveNote, deleteNote, importNote, checkIfSaved } =
   useText(mode)
 const router = useRouter()
 
@@ -117,7 +124,7 @@ const handleBack = () => {
       router.push('/notes')
     }
   })
-  // if (text.value == BEGIN_TEXT || text.value == saveText) {
+  // if (postInfo.content == BEGIN_TEXT || postInfo.content == saveText) {
   //   router.push('/notes')
   // } else {
   //   Dialog.confirm({
@@ -141,6 +148,12 @@ const handleImport = (file: VantFile) => {
 const handleDelete = () => {
   showMore.value = false
   deleteNote()
+}
+
+const handleSave = () => {
+  saveNote().then(()=>{
+    mode.value = 'preview'
+  })
 }
 
 onMounted(() => {
@@ -234,6 +247,11 @@ onBeforeUnmount(() => {
     width: var(--van-button-small-height);
     margin: 0.1rem;
   }
+}
+
+.tags-wrap {
+  padding: 0 $margin-items;
+  background-color: var(--van-cell-background-color);
 }
 
 .uploader-wrap {

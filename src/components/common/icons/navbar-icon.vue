@@ -54,7 +54,7 @@
       </svg>
     </template>
     <template v-if="name === 'save'">
-      <svg
+      <!-- <svg
         width="1.2rem"
         height="1.2rem"
         viewBox="0 0 24 24"
@@ -64,7 +64,8 @@
           d="M17 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14c1.1 0 2-.9 2-2V7l-4-4m2 16H5V5h11.17L19 7.83V19m-7-7c-1.66 0-3 1.34-3 3s1.34 3 3 3s3-1.34 3-3s-1.34-3-3-3M6 6h9v4H6V6z"
           fill="currentColor"
         ></path>
-      </svg>
+      </svg> -->
+      <van-icon size="18" name="success" />
       <!-- <van-icon size="18" name="https://api.iconify.design/cil:save.svg" /> -->
     </template>
     <template v-if="name === 'sync'">
@@ -97,6 +98,7 @@
 </template>
 
 <script setup lang="ts">
+// icons来源：https://icones.netlify.app/collection/all
 import { defineProps } from 'vue'
 
 defineProps<{
