@@ -128,8 +128,9 @@ export const useText = (mode: Ref<'edit' | 'preview' | 'editable'>) => {
 
     // 首先弹出窗口确认是否要删除
     Dialog.confirm({
-      title: '确定要删除笔记吗？',
-      message: '该操作不可恢复',
+      title: '文件删除后将无法恢复',
+      // message: '文件删除后将无法恢复',
+      confirmButtonText: '删除',
       beforeClose: deletingNote
     })
   }

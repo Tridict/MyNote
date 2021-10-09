@@ -17,26 +17,10 @@
       </van-button>
     </template>
     <template #main>
-      <!-- <van-checkbox-group v-model="checked">
-        <van-collapse v-model="collapseActiveName" accordion>
-          <van-row
-            v-for="(item, index) in list"
-            :key="index"
-            class="cell-group-margin"
-          >
-            <transition name="checkbox">
-              <van-checkbox
-                :name="item"
-                :ref="(el) => (checkboxRefs[index] = el)"
-                @click.stop
-                class="expand-checkbox"
-                v-if="showCheckbox"
-              />
-            </transition> -->
       <van-cell-group
         inset
         v-if="loading"
-        class="article-item article-item__skeleton"
+        class="article-item__skeleton"
       >
         <van-skeleton title :row="4" />
       </van-cell-group>
@@ -46,30 +30,18 @@
           <!-- 置顶文章 -->
           <div class="pinned-wrap van-hairline--surround">
             <div class="van-cell-group__title">置顶</div>
-            <van-cell-group
-              inset
-              class="article-item"
-              v-for="article in pinnedArticleList"
-              :key="article.id"
-            >
-              <ArticleListItem
-                :article="article"
-                @click="onEdit(article.postId)"
+              <ArticleList
+                :articleList="pinnedArticleList"
+                :showCheckbox="status.showCheckbox"
+                :getArticleList="getArticleList"
               />
-            </van-cell-group>
           </div>
           <!-- 其他文章 -->
-          <van-cell-group
-            inset
-            class="article-item"
-            v-for="article in articleList"
-            :key="article.id"
-          >
-            <ArticleListItem
-              :article="article"
-              @click="onEdit(article.postId)"
+            <ArticleList
+              :articleList="articleList"
+              :showCheckbox="status.showCheckbox"
+              :getArticleList="getArticleList"
             />
-          </van-cell-group>
         </template>
         <!-- 空状态 -->
         <van-empty v-else description="暂无笔记">
@@ -78,32 +50,24 @@
           </van-button>
         </van-empty>
       </template>
-      <!-- </van-row>
-        </van-collapse>
-      </van-checkbox-group> -->
     </template>
   </Page>
 </template>
 
 <script setup lang="ts">
 import Page from '@/components/common/page.vue'
-import ArticleListItem from '@/components/article-list-item.vue'
+import ArticleList from '@/components/article-list.vue'
 import Icon from '@/components/common/icons/navbar-icon.vue'
 import { useArticle } from '@/utils/notes/useArticle'
-import { useRouter } from 'vue-router'
 import { reactive, ref } from 'vue'
 import { Notify } from 'vant'
-const router = useRouter()
+
 const { loading, articleList, pinnedArticleList, getArticleList } = useArticle()
 // 多选
 const status = reactive({
   isSyncing: false,
   showCheckbox: false
 })
-
-const onEdit = (id: string) => {
-  router.push('/post?id=' + id)
-}
 
 const handleSync = async () => {
   status.isSyncing = true
@@ -118,19 +82,15 @@ const handleSync = async () => {
 </script>
 
 <style lang="scss" scoped>
-.article-item {
+.article-item__skeleton {
   margin: $margin-items;
-  &__skeleton {
-    padding: $margin-items;
-  }
+  padding: $margin-items;
 }
 
 .pinned-wrap {
   padding-bottom: 1px;
   background: #eee;
-  .article-item {
-    margin-top: 0;
-  }
+  margin-bottom: $margin-items;
 }
 
 :deep().van-button--small {

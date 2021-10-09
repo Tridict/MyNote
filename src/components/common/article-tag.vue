@@ -13,7 +13,7 @@
 import { defineProps } from 'vue'
 import { Tag } from '@/utils/notes/useArticle'
 
-defineProps<{ tags: Tag[] }>()
+defineProps<{ tags?: Tag[] }>()
 </script>
 
 <style lang="scss" scoped>
