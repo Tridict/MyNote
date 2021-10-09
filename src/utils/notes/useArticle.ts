@@ -34,13 +34,13 @@ const sortByTime = (a: Article, b: Article) => {
 // todo: 去除md格式...
 // 匹配“$#+ ”？
 const getTitle = (text: string) => {
-  let ll = text.trimLeft().split('\n')
+  const ll = text.trimLeft().split('\n')
   return ll[0].length > 63 ? `${ll[0].slice(0, 63)}...` : ll[0]
 }
 
 const getAbstract = (text: string) => {
   text = text.replace(/\n+/, '\n')
-  let ll = text.trimLeft().split('\n')
+  const ll = text.trimLeft().split('\n')
   return ll[1] ? ll.slice(1, ll.length).join(' ') : ll[0]
 }
 
