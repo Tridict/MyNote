@@ -33,14 +33,36 @@
                 v-if="showCheckbox"
               />
             </transition> -->
-      <template v-if="articleList?.length">
-        <!-- 置顶文章 -->
-        <div class="pinned-wrap van-hairline--surround">
-          <div class="van-cell-group__title">置顶</div>
+      <van-cell-group
+        inset
+        v-if="loading"
+        class="article-item article-item__skeleton"
+      >
+        <van-skeleton title :row="4" />
+      </van-cell-group>
+      <template v-else>
+        <!-- 文章列表 -->
+        <template v-if="articleList?.length || pinnedArticleList?.length">
+          <!-- 置顶文章 -->
+          <div class="pinned-wrap van-hairline--surround">
+            <div class="van-cell-group__title">置顶</div>
+            <van-cell-group
+              inset
+              class="article-item"
+              v-for="article in pinnedArticleList"
+              :key="article.id"
+            >
+              <ArticleListItem
+                :article="article"
+                @click="onEdit(article.postId)"
+              />
+            </van-cell-group>
+          </div>
+          <!-- 其他文章 -->
           <van-cell-group
             inset
             class="article-item"
-            v-for="article in pinnedArticleList"
+            v-for="article in articleList"
             :key="article.id"
           >
             <ArticleListItem
@@ -48,20 +70,14 @@
               @click="onEdit(article.postId)"
             />
           </van-cell-group>
-        </div>
-        <!-- 其他文章 -->
-        <van-cell-group
-          inset
-          class="article-item"
-          v-for="article in articleList"
-          :key="article.id"
-        >
-          <ArticleListItem :article="article" @click="onEdit(article.postId)" />
-        </van-cell-group>
+        </template>
+        <!-- 空状态 -->
+        <van-empty v-else description="暂无笔记">
+          <van-button round type="primary" class="bottom-button" to="/post">
+            新增笔记
+          </van-button>
+        </van-empty>
       </template>
-      <van-cell-group inset class="article-item article-item__skeleton" v-else>
-        <van-skeleton title :row="4" />
-      </van-cell-group>
       <!-- </van-row>
         </van-collapse>
       </van-checkbox-group> -->
@@ -78,7 +94,7 @@ import { useRouter } from 'vue-router'
 import { reactive, ref } from 'vue'
 import { Notify } from 'vant'
 const router = useRouter()
-const { articleList, pinnedArticleList, getArticleList } = useArticle()
+const { loading, articleList, pinnedArticleList, getArticleList } = useArticle()
 // 多选
 const status = reactive({
   isSyncing: false,

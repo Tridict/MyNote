@@ -64,10 +64,13 @@ axios.interceptors.response.use(
   },
   function (error) {
     // 对响应错误做点什么
-    console.log('code', error.code)
-    console.log('msg', error.message)
-    console.log('error', error)
-    return Promise.reject(error)
+    // console.log('msg', error.message)
+    // console.log('error', error)
+    let msg = error.message || error
+    if (error.message.includes('403')) {
+      msg = '您没有权限执行该操作'
+    }
+    return Promise.reject(msg)
   }
 )
 

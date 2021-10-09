@@ -31,9 +31,23 @@ const sortByTime = (a: Article, b: Article) => {
   return Date.parse(b.time) - Date.parse(a.time)
 }
 
+// todo: 去除md格式...
+// 匹配“$#+ ”？
+const getTitle = (text: string) => {
+  let ll = text.trimLeft().split('\n')
+  return ll[0].length > 63 ? `${ll[0].slice(0, 63)}...` : ll[0]
+}
+
+const getAbstract = (text: string) => {
+  text = text.replace(/\n+/, '\n')
+  let ll = text.trimLeft().split('\n')
+  return ll[1] ? ll.slice(1, ll.length).join(' ') : ll[0]
+}
+
 const useArticle = () => {
   const pinnedArticleList = ref<Article[]>()
   const articleList = ref<Article[]>()
+  const loading = ref(true)
 
   const getArticleList = async (): Promise<void> => {
     const res = await getNotes()
@@ -41,8 +55,8 @@ const useArticle = () => {
       const content = decode(x.content)
       const time = new Date(x.updatedAt).toLocaleString('zh', { hour12: false })
       return {
-        title: content.split('\n')[0],
-        abstract: content.slice(0, 400),
+        title: getTitle(content),
+        abstract: getAbstract(content),
         time,
         id: idx,
         postId: x.objectId,
@@ -65,9 +79,12 @@ const useArticle = () => {
     articleList.value = otherArticles
   }
 
-  onMounted(getArticleList)
+  onMounted(async () => {
+    await getArticleList()
+    loading.value = false
+  })
 
-  return { articleList, pinnedArticleList, getArticleList }
+  return { loading, articleList, pinnedArticleList, getArticleList }
 }
 
 export { useArticle }
