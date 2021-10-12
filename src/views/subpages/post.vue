@@ -10,7 +10,7 @@
         </van-button>
       </template>
       <template #right>
-        <van-button size="small" @click="showPreview">
+        <van-button size="small" @click="showPreview" v-if="postInfo.can_write">
           <Icon name="showPreview" :active="isEdit" />
         </van-button>
         <van-button size="small" @click="showMore = true">
@@ -37,9 +37,10 @@
       close-on-click-action
       safe-area-inset-bottom
     >
+      <!-- 导入 -->
       <label class="uploader-wrap">
         <van-uploader accept=".md, .txt" :after-read="handleImport">
-          打开笔记
+          导入笔记
         </van-uploader>
         <div class="uploader-warn van-action-sheet__subname">
           从本地文件中导入一篇新的笔记，当前未保存内容可能会丢失
@@ -51,34 +52,42 @@
         :download="saveFileName"
         :href="getDownloadLink(postInfo.content)"
       >
-        <button class="van-action-sheet__item" @click="showMore = false">导出笔记</button>
+        <button class="van-action-sheet__item" @click="showMore = false">
+          导出笔记
+        </button>
       </a>
       <div class="van-hairline--bottom"></div>
+      <!-- 置顶 -->
       <button
         class="van-action-sheet__item"
         @click="handlePin"
+        v-if="postInfo.can_write"
       >
         <span v-if="postInfo.pinned">取消置顶</span>
         <span v-else>置顶笔记</span>
       </button>
       <div class="van-hairline--bottom"></div>
+      <!-- 公开 -->
       <button
         class="van-action-sheet__item"
         @click="handlePublic"
-        v-if="!postInfo.is_public_read"
+        v-if="postInfo.can_write"
       >
         <span v-if="postInfo.is_public_read">取消公开</span>
-        <span v-else>公开笔记
+        <span v-else>
+          公开笔记
           <div class="uploader-warn van-action-sheet__subname">
             公开以后，所有人都将能看到您的笔记（只读）
           </div>
         </span>
       </button>
       <div class="van-hairline--bottom"></div>
+      <!-- 删除 -->
       <button
         class="van-action-sheet__item"
         style="color: red"
         @click="handleDelete"
+        v-if="postInfo.can_write"
       >
         删除笔记
       </button>
@@ -113,8 +122,18 @@ const showMore = ref(false)
 // const { editorHeight } = useKeyboard()
 const { getDownloadLink } = useExport()
 const { mode, isEdit, showPreview } = useMode()
-const { status, postInfo, saveFileName, handleAddtag, handlePin, handlePublic, saveNote, deleteNote, importNote, checkIfSaved } =
-  useText(mode)
+const {
+  status,
+  postInfo,
+  saveFileName,
+  handleAddtag,
+  handlePin,
+  handlePublic,
+  saveNote,
+  deleteNote,
+  importNote,
+  checkIfSaved
+} = useText(mode)
 const router = useRouter()
 
 const handleBack = () => {
@@ -151,7 +170,7 @@ const handleDelete = () => {
 }
 
 const handleSave = () => {
-  saveNote().then(()=>{
+  saveNote().then(() => {
     mode.value = 'preview'
   })
 }

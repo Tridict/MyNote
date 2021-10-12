@@ -1,22 +1,7 @@
+import { encode } from 'js-base64'
 import axios from '@/api'
 import store from '@/utils/stores'
-import { encode } from 'js-base64'
-
-interface User {
-  __type: string
-  className: string
-  objectId: string
-}
-
-const getUser = (userId?: string): User => {
-  userId = userId || store.get('LC_userinfo')?.objectId
-  // console.log('userId', userId)
-  return {
-    __type: 'Pointer',
-    className: '_User',
-    objectId: userId || ''
-  }
-}
+import { User, getUser } from '@/utils/getPointer'
 
 export interface NoteRes {
   content: string
@@ -77,24 +62,36 @@ export const updateNote = (
   })
 }
 
-// 添加标签（还要动两个表...）
-export const addTag = (params: { newTags: string[], oldTags: string[]; postId: string }) => {
-  return axios.put(`/1.1/classes/Note/${params.postId}`, {
-    tags: [...params.oldTags, ...params.newTags]
-  })
+// 公开笔记————会遇到不能add fields的问题？？？
+export const makePublicNote = (postId: string, editable = false) => {
+  const userId = store.get('LC_userinfo')?.objectId
+  if (editable) {
+    return axios.put(`/1.1/classes/Note/${postId}`, {
+      is_public_read: true,
+      is_public_write: true,
+      ACL: { '*': { write: true, read: true } }
+    })
+  } else {
+    return axios.put(`/1.1/classes/Note/${postId}`, {
+      is_public_read: true,
+      ACL: { [userId]: { write: true }, '*': { read: true } }
+    })
+  }
 }
 
-// 公开笔记（所有用户可读）————会遇到不能add fields的问题？？？
-export const makePublicNote = (postId: string) => {
+// 取消公开
+export const cancelPublicNote = (postId: string) => {
   const userId = store.get('LC_userinfo')?.objectId
   return axios.put(`/1.1/classes/Note/${postId}`, {
-    is_public_read: true,
-    tags: ["公开"],
-    ACL: { [userId]: { write: true }, '*': { read: true } }
+    is_public_read: false,
+    is_public_write: false,
+    ACL: {
+      [userId]: { write: true, read: true }
+    }
   })
 }
 
-// 置顶笔记：需要在排序上、展示上配套；还有和取消置顶配套...
+// 置顶/取消置顶
 export const pinnedNote = (postId: string, oldPinned: boolean | undefined) => {
   return axios.put(`/1.1/classes/Note/${postId}`, {
     pinned: !oldPinned
@@ -108,7 +105,10 @@ export const shareNote = (
   oldACL: { [key: string]: { write: boolean; read: boolean } },
   oldSharedTo: string[]
 ) => {
-  const ACL = Object.assign({ [sharedUserId]: { write: true, read: true } }, oldACL)
+  const ACL = Object.assign(
+    { [sharedUserId]: { write: true, read: true } },
+    oldACL
+  )
   return axios.put(`/1.1/classes/Note/${postId}`, {
     ACL,
     shared_to: [...oldSharedTo, sharedUserId]

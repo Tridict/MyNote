@@ -1,8 +1,9 @@
-import { ref, computed, onBeforeMount, Ref, reactive, toRef } from 'vue'
+import { ref, computed, onBeforeMount, Ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import { Dialog, Notify } from 'vant'
 import { decode } from 'js-base64'
 import { VantFile } from '@/types'
+import store from '@/utils/stores'
 import useFile from '@/utils/notes/useFile'
 import { getQueryParams } from '@/utils/urlQuery'
 import {
@@ -11,9 +12,9 @@ import {
   createNote,
   delNote,
   makePublicNote,
+  cancelPublicNote,
   pinnedNote
 } from '@/api/notes'
-
 
 export const useText = (mode: Ref<'edit' | 'preview' | 'editable'>) => {
   const BEGIN_TEXT = '## 在此编辑您的内容' //记录初始文本，如果没有修改，则不需要保存
@@ -27,7 +28,8 @@ export const useText = (mode: Ref<'edit' | 'preview' | 'editable'>) => {
     is_public_write: false,
     pinned: false,
     tags: [''],
-    postId: ''
+    postId: '',
+    can_write: true
     // updatedAt: string
   })
   const status = reactive({
@@ -51,6 +53,12 @@ export const useText = (mode: Ref<'edit' | 'preview' | 'editable'>) => {
         postInfo.pinned = result.pinned || false
         postInfo.tags = result.tags || ['']
         saveText = postInfo.content
+
+        // 若该笔记是公开只读的，判断是否为笔记owner
+        if (postInfo.is_public_read && !postInfo.is_public_write) {
+          postInfo.can_write =
+            result.owner.objectId === store.get('LC_userinfo')?.objectId
+        }
       } catch (error) {
         console.log(error)
         router.replace('/notes')
@@ -81,7 +89,10 @@ export const useText = (mode: Ref<'edit' | 'preview' | 'editable'>) => {
     // 保存
     try {
       if (postInfo.postId) {
-        await updateNote({ noteContent: postInfo.content, postId: postInfo.postId })
+        await updateNote({
+          noteContent: postInfo.content,
+          postId: postInfo.postId
+        })
       } else {
         // 还没有postId，新建笔记
         const res = await createNote(postInfo.content)
@@ -135,12 +146,36 @@ export const useText = (mode: Ref<'edit' | 'preview' | 'editable'>) => {
     })
   }
 
+  const comfirmPublicWrite = async () => {
+    try {
+      await Dialog.confirm({
+        message: '请选择其他用户对该笔记的权限',
+        confirmButtonText: '编辑',
+        cancelButtonText: '只读'
+      })
+      return true
+    } catch {
+      return false
+    }
+  }
+
   const handlePublic = async () => {
     status.isPublicing = true
     try {
       if (postInfo.postId) {
-        await makePublicNote(postInfo.postId)
-        Notify({ type: 'success', message: `笔记已公开` })
+        if (postInfo.is_public_read) {
+          await cancelPublicNote(postInfo.postId)
+          postInfo.is_public_write = false
+        } else {
+          const editable = await comfirmPublicWrite()
+          await makePublicNote(postInfo.postId, editable)
+          if (editable) {
+            postInfo.is_public_write = true
+          }
+        }
+        const msg = postInfo.is_public_read ? `取消公开` : `公开`
+        postInfo.is_public_read = !postInfo.is_public_read
+        Notify({ type: 'success', message: `操作成功：笔记已${msg}` })
       } else {
         Notify(`请先保存笔记`)
       }
