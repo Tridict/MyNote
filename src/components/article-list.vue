@@ -74,6 +74,9 @@ const handleClicks = (index: number) => {
     font-weight: 700;
     color: $text-black;
   }
+  &:first-child {
+    margin-top: $margin-items;
+  }
 }
 
 :deep().van-cell__title {

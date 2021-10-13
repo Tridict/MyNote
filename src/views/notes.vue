@@ -21,26 +21,30 @@
         <van-skeleton title :row="4" />
       </van-cell-group>
       <template v-else>
-        <!-- 文章列表 -->
-        <template v-if="articleList?.length || pinnedArticleList?.length">
-          <!-- 置顶文章 -->
-          <div class="pinned-wrap van-hairline--surround">
-            <div class="van-cell-group__title">置顶</div>
-            <ArticleList
-              :articleList="pinnedArticleList"
-              :showCheckbox="status.showCheckbox"
-              :getArticleList="getArticleList"
-            />
-          </div>
-          <!-- 其他文章 -->
+        <!-- 置顶文章 -->
+        <div
+          class="pinned-wrap van-hairline--surround"
+          v-if="pinnedArticleList?.length"
+        >
+          <div class="van-cell-group__title">置顶</div>
           <ArticleList
-            :articleList="articleList"
+            :articleList="pinnedArticleList"
             :showCheckbox="status.showCheckbox"
             :getArticleList="getArticleList"
           />
-        </template>
+        </div>
+        <!-- 其他文章 -->
+        <ArticleList
+          v-if="articleList?.length"
+          :articleList="articleList"
+          :showCheckbox="status.showCheckbox"
+          :getArticleList="getArticleList"
+        />
         <!-- 空状态 -->
-        <van-empty v-else description="暂无笔记">
+        <van-empty
+          v-if="!articleList?.length && !pinnedArticleList?.length"
+          description="暂无笔记"
+        >
           <van-button round type="primary" class="bottom-button" to="/post">
             新增笔记
           </van-button>

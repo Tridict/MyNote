@@ -33,12 +33,6 @@ export const getAllNotes = (): Promise<{ results: NoteRes[] }> => {
   return axios.get(`/1.1/classes/Note`)
 }
 
-// getNotes({where: JSON.stringify({ pinned: true })}) 默认获取所有置顶文章
-// 分页
-// getNotes({limit: 10}) 获取10条数据（p1）
-// getNotes({limit: 10, skip:10}) 获取第10到20条数据（p2）
-// getNotes({limit: 10, skip:20}) 获取第10到20条数据（p3）
-
 export const getNotes = (
   // 默认获取非置顶文章
   query: Query = {

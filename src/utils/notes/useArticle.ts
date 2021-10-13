@@ -1,4 +1,5 @@
 import { getNotes } from '@/api/notes'
+import { NoteRes } from '@/api/notes'
 import { ref } from '@vue/reactivity'
 import { onMounted } from '@vue/runtime-core'
 import { decode } from 'js-base64'
@@ -27,9 +28,9 @@ export const getTag = (tags: string[] | undefined) => {
   return tagObj
 }
 
-const sortByTime = (a: Article, b: Article) => {
-  return Date.parse(b.time) - Date.parse(a.time)
-}
+// const sortByTime = (a: Article, b: Article) => {
+//   return Date.parse(b.time) - Date.parse(a.time)
+// }
 
 // todo: 去除md格式...
 // 匹配“$#+ ”？
@@ -43,40 +44,68 @@ const getAbstract = (text: string) => {
   const ll = text.trimLeft().split('\n')
   return ll[1] ? ll.slice(1, ll.length).join(' ') : ll[0]
 }
+// getNotes({where: JSON.stringify({ pinned: true })}) 获取所有置顶文章
+
+const getArticleFromNote = (res: { results: NoteRes[] }): Article[] => {
+  return res.results.map((x, idx) => {
+    const content = decode(x.content)
+    const time = new Date(x.updatedAt).toLocaleString('zh', { hour12: false })
+    return {
+      title: getTitle(content),
+      abstract: getAbstract(content),
+      time,
+      id: idx,
+      postId: x.objectId,
+      tags: getTag(x.tags),
+      pinned: x.pinned
+    }
+  })
+}
 
 const useArticle = () => {
   const pinnedArticleList = ref<Article[]>()
   const articleList = ref<Article[]>()
   const loading = ref(true)
+  const pageNum = ref(1)
+
+  // 获取一页非置顶文章（之后还要传入pinnedIds）
+  const getArticlePage = async (): Promise<void> => {
+    const query = {
+      where: JSON.stringify({ pinned: { $ne: true } }),
+      // where: JSON.stringify({ postId: { $nin: pinnedIds } }),
+      limit: 10,
+      skip: pageNum.value * 10 - 10
+    }
+    const res = await getNotes(query)
+    articleList.value = getArticleFromNote(res)
+  }
 
   const getArticleList = async (): Promise<void> => {
-    const res = await getNotes()
-    const articles: Article[] = res.results.map((x, idx) => {
-      const content = decode(x.content)
-      const time = new Date(x.updatedAt).toLocaleString('zh', { hour12: false })
-      return {
-        title: getTitle(content),
-        abstract: getAbstract(content),
-        time,
-        id: idx,
-        postId: x.objectId,
-        tags: getTag(x.tags),
-        pinned: x.pinned
-      }
-    })
+    // const pinnedIds = await getPinnedIds()
+
+    // 获取所有置顶文章
+    const queryPinned = {
+      where: JSON.stringify({ pinned: true })
+      // where: JSON.stringify({ postId: {$in: pinnedIds} })
+    }
+    const res = await getNotes(queryPinned)
+    pinnedArticleList.value = getArticleFromNote(res)
+
+    // 获取一页非置顶文章
+    getArticlePage()
 
     // 选出置顶的
-    const topArticles: Article[] = articles.filter((x) => x.pinned === true)
+    // const topArticles: Article[] = articles.filter((x) => x.pinned === true)
 
     // 非置顶的
-    const otherArticles: Article[] = articles.filter((x) => x.pinned === false)
+    // const otherArticles: Article[] = articles.filter((x) => x.pinned === false)
 
     // 按时间从新到旧排序
-    topArticles.sort(sortByTime)
-    otherArticles.sort(sortByTime)
+    // topArticles.sort(sortByTime)
+    // otherArticles.sort(sortByTime)
 
-    pinnedArticleList.value = topArticles
-    articleList.value = otherArticles
+    // pinnedArticleList.value = topArticles
+    // articleList.value = otherArticles
   }
 
   onMounted(async () => {
