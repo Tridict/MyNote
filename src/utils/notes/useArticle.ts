@@ -107,7 +107,7 @@ const useArticle = () => {
     }
   }
 
-  const getArticleList = async (): Promise<void> => {
+  const initArticleList = async (): Promise<void> => {
     // const pinnedIds = await getPinnedIds()
 
     // 获取所有置顶文章
@@ -135,8 +135,16 @@ const useArticle = () => {
     // articleList.value = otherArticles
   }
 
+  // 刷新列表
+  const getArticleList = async (): Promise<void> => {
+    pageNum.value = 1
+    articleList.value = []
+    status.finished = false
+    await initArticleList()
+  }
+
   onMounted(async () => {
-    await getArticleList()
+    await initArticleList()
     status.loading = false
   })
 
