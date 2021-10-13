@@ -17,11 +17,7 @@
       </van-button>
     </template>
     <template #main>
-      <van-cell-group
-        inset
-        v-if="loading"
-        class="article-item__skeleton"
-      >
+      <van-cell-group inset v-if="loading" class="article-item__skeleton">
         <van-skeleton title :row="4" />
       </van-cell-group>
       <template v-else>
@@ -30,18 +26,18 @@
           <!-- 置顶文章 -->
           <div class="pinned-wrap van-hairline--surround">
             <div class="van-cell-group__title">置顶</div>
-              <ArticleList
-                :articleList="pinnedArticleList"
-                :showCheckbox="status.showCheckbox"
-                :getArticleList="getArticleList"
-              />
-          </div>
-          <!-- 其他文章 -->
             <ArticleList
-              :articleList="articleList"
+              :articleList="pinnedArticleList"
               :showCheckbox="status.showCheckbox"
               :getArticleList="getArticleList"
             />
+          </div>
+          <!-- 其他文章 -->
+          <ArticleList
+            :articleList="articleList"
+            :showCheckbox="status.showCheckbox"
+            :getArticleList="getArticleList"
+          />
         </template>
         <!-- 空状态 -->
         <van-empty v-else description="暂无笔记">

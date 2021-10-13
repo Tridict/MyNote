@@ -20,7 +20,7 @@ export interface NoteRes {
 
 // 参考：[查询约束](https://leancloud.cn/docs/rest_api.html#hash827796182)
 interface Query {
-  order: string // 排序，可以是索引名称 'createdAt' '-createdAt' 'updatedAt' '-updatedAt' 还可以是组合（例如'createdAt,-pubUser' 以 createdAt 升序和 pubUser 降序进行排序）
+  order?: string // 排序，可以是索引名称 'createdAt' '-createdAt' 'updatedAt' '-updatedAt' 还可以是组合（例如'createdAt,-pubUser' 以 createdAt 升序和 pubUser 降序进行排序）
   limit?: number // 获取几条数据
   skip?: number // 从第几条开始获取
   where?: string // JSON.stringify(object) 根据列名称条件筛选
@@ -33,20 +33,22 @@ export const getAllNotes = (): Promise<{ results: NoteRes[] }> => {
   return axios.get(`/1.1/classes/Note`)
 }
 
+// getNotes({where: JSON.stringify({ pinned: true })}) 默认获取所有置顶文章
+// 分页
+// getNotes({limit: 10}) 获取10条数据（p1）
+// getNotes({limit: 10, skip:10}) 获取第10到20条数据（p2）
+// getNotes({limit: 10, skip:20}) 获取第10到20条数据（p3）
+
 export const getNotes = (
-  where = { pinned: true },
-  limit?: number,
-  order = '-updatedAt'
+  // 默认获取非置顶文章
+  query: Query = {
+    where: JSON.stringify({ pinned: { $ne: true } })
+  }
 ): Promise<{ results: NoteRes[] }> => {
-  // 默认获取所有置顶文章
-  const query: Query = {
-    where: JSON.stringify(where),
-    order
+  // 默认按更新时间倒序
+  if (!query.order) {
+    query.order = '-updatedAt'
   }
-  if (limit) {
-    query.limit = limit
-  }
-  // 默认获取最近十条
   return axios.get(`/1.1/classes/Note?${qs.stringify(query)}`)
 }
 

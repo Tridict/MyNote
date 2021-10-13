@@ -53,7 +53,7 @@ const toolList: tool[] = [
 
 const onEdit = (action: string) => {
   console.log(action + '功能尚未实现，敬请期待')
-  router.push('/tool-page')
+  router.push('/tool-spy')
 }
 </script>
 
