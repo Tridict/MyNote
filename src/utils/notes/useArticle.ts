@@ -1,6 +1,6 @@
 import { getNotes } from '@/api/notes'
 import { NoteRes } from '@/api/notes'
-import { ref } from '@vue/reactivity'
+import { reactive, ref } from '@vue/reactivity'
 import { onMounted } from '@vue/runtime-core'
 import { decode } from 'js-base64'
 
@@ -46,8 +46,8 @@ const getAbstract = (text: string) => {
 }
 // getNotes({where: JSON.stringify({ pinned: true })}) 获取所有置顶文章
 
-const getArticleFromNote = (res: { results: NoteRes[] }): Article[] => {
-  return res.results.map((x, idx) => {
+const getArticleFromNote = (res: NoteRes[]): Article[] => {
+  return res.map((x, idx) => {
     const content = decode(x.content)
     const time = new Date(x.updatedAt).toLocaleString('zh', { hour12: false })
     return {
@@ -64,20 +64,47 @@ const getArticleFromNote = (res: { results: NoteRes[] }): Article[] => {
 
 const useArticle = () => {
   const pinnedArticleList = ref<Article[]>()
-  const articleList = ref<Article[]>()
-  const loading = ref(true)
+  const articleList = ref<Article[]>([])
+  const status = reactive({
+    loading: true,
+    loadingMore: false,
+    finished: false,
+    error: false
+  })
   const pageNum = ref(1)
+  const totalPages = ref(1)
+  const notesPerPage = 10
 
   // 获取一页非置顶文章（之后还要传入pinnedIds）
   const getArticlePage = async (): Promise<void> => {
     const query = {
       where: JSON.stringify({ pinned: { $ne: true } }),
       // where: JSON.stringify({ postId: { $nin: pinnedIds } }),
-      limit: 10,
-      skip: pageNum.value * 10 - 10
+      limit: notesPerPage,
+      skip: pageNum.value * notesPerPage - notesPerPage,
+      count: 1
     }
-    const res = await getNotes(query)
-    articleList.value = getArticleFromNote(res)
+    pageNum.value += 1
+    try {
+      const res = await getNotes(query)
+      if (typeof res.count === 'number') {
+        totalPages.value = Math.ceil(res.count / notesPerPage)
+        // console.log(`共${res.count}篇非置顶笔记，分为${totalPages.value}页`)
+      }
+      articleList.value = [
+        ...articleList.value,
+        ...getArticleFromNote(res.results)
+      ]
+      status.loadingMore = false
+      if (pageNum.value > totalPages.value) {
+        // console.log(`已加载${articleList.value.length}篇非置顶笔记。`)
+        status.finished = true
+      }
+    } catch (error) {
+      pageNum.value -= 1
+      console.log('getArticlePage失败：', error)
+      status.error = true
+    }
   }
 
   const getArticleList = async (): Promise<void> => {
@@ -89,7 +116,7 @@ const useArticle = () => {
       // where: JSON.stringify({ postId: {$in: pinnedIds} })
     }
     const res = await getNotes(queryPinned)
-    pinnedArticleList.value = getArticleFromNote(res)
+    pinnedArticleList.value = getArticleFromNote(res.results)
 
     // 获取一页非置顶文章
     getArticlePage()
@@ -110,10 +137,16 @@ const useArticle = () => {
 
   onMounted(async () => {
     await getArticleList()
-    loading.value = false
+    status.loading = false
   })
 
-  return { loading, articleList, pinnedArticleList, getArticleList }
+  return {
+    status,
+    articleList,
+    pinnedArticleList,
+    getArticleList,
+    getArticlePage
+  }
 }
 
 export { useArticle }

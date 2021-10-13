@@ -38,7 +38,7 @@ export const getNotes = (
   query: Query = {
     where: JSON.stringify({ pinned: { $ne: true } })
   }
-): Promise<{ results: NoteRes[] }> => {
+): Promise<{ results: NoteRes[]; count?: string | number }> => {
   // 默认按更新时间倒序
   if (!query.order) {
     query.order = '-updatedAt'

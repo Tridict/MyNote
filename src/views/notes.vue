@@ -17,34 +17,45 @@
       </van-button>
     </template>
     <template #main>
-      <van-cell-group inset v-if="loading" class="article-item__skeleton">
+      <van-cell-group
+        inset
+        v-if="status.loading"
+        class="article-item__skeleton"
+      >
         <van-skeleton title :row="4" />
       </van-cell-group>
       <template v-else>
-        <!-- 置顶文章 -->
-        <div
-          class="pinned-wrap van-hairline--surround"
-          v-if="pinnedArticleList?.length"
+        <van-list
+          v-if="articleList?.length || pinnedArticleList?.length"
+          v-model:loading="status.loadingMore"
+          v-model:error="status.error"
+          :finished="status.finished"
+          finished-text="没有更多了"
+          error-text="请求失败，点击重新加载"
+          @load="getArticlePage"
         >
-          <div class="van-cell-group__title">置顶</div>
+          <!-- 置顶文章 -->
+          <div
+            class="pinned-wrap van-hairline--surround"
+            v-if="pinnedArticleList?.length"
+          >
+            <div class="van-cell-group__title">置顶</div>
+            <ArticleList
+              :articleList="pinnedArticleList"
+              :showCheckbox="status.showCheckbox"
+              :getArticleList="getArticleList"
+            />
+          </div>
+          <!-- 其他文章 -->
           <ArticleList
-            :articleList="pinnedArticleList"
+            v-if="articleList?.length"
+            :articleList="articleList"
             :showCheckbox="status.showCheckbox"
             :getArticleList="getArticleList"
           />
-        </div>
-        <!-- 其他文章 -->
-        <ArticleList
-          v-if="articleList?.length"
-          :articleList="articleList"
-          :showCheckbox="status.showCheckbox"
-          :getArticleList="getArticleList"
-        />
+        </van-list>
         <!-- 空状态 -->
-        <van-empty
-          v-if="!articleList?.length && !pinnedArticleList?.length"
-          description="暂无笔记"
-        >
+        <van-empty v-else description="暂无笔记">
           <van-button round type="primary" class="bottom-button" to="/post">
             新增笔记
           </van-button>
@@ -59,15 +70,25 @@ import Page from '@/components/common/page.vue'
 import ArticleList from '@/components/article-list.vue'
 import Icon from '@/components/common/icons/navbar-icon.vue'
 import { useArticle } from '@/utils/notes/useArticle'
-import { reactive, ref } from 'vue'
+// import { reactive, ref } from 'vue'
 import { Notify } from 'vant'
 
-const { loading, articleList, pinnedArticleList, getArticleList } = useArticle()
+const {
+  status,
+  articleList,
+  pinnedArticleList,
+  getArticleList,
+  getArticlePage
+} = useArticle()
 // 多选
-const status = reactive({
+Object.assign(status, {
   isSyncing: false,
   showCheckbox: false
 })
+// const status = reactive({
+//   isSyncing: false,
+//   showCheckbox: false
+// })
 
 const handleSync = async () => {
   status.isSyncing = true
