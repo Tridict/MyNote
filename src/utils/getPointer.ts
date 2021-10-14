@@ -7,7 +7,7 @@ export interface User {
 }
 
 export const getUser = (userId?: string): User => {
-  userId = userId || store.get('LC_userinfo')?.objectId
+  userId = userId || store.get('LcUserInfo')?.objectId
   // console.log('userId', userId)
   return {
     __type: 'Pointer',

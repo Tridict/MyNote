@@ -70,7 +70,7 @@ const router = createRouter({
 
 // 检查是否已登录
 router.beforeEach((to, from) => {
-  const isAuthenticated = store.get('LC_userinfo')?.sessionToken
+  const isAuthenticated = store.get('LcUserInfo')?.sessionToken
   if (to.name !== 'Login' && !isAuthenticated) {
     // 如果未登录，则重定向到登录页面
     return {

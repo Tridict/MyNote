@@ -1,4 +1,4 @@
-import { ref, computed, onBeforeMount, Ref, reactive } from 'vue'
+import { computed, onBeforeMount, Ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import { Dialog, Notify } from 'vant'
 import { decode } from 'js-base64'
@@ -23,13 +23,13 @@ export const useText = (mode: Ref<'edit' | 'preview' | 'editable'>) => {
     content: '',
     // createdAt: '',
     // deleted: boolean,
-    // is_draft: boolean,
-    is_public_read: false,
-    is_public_write: false,
+    // isDraft: boolean,
+    isPublicRead: false,
+    isPublicWrite: false,
     pinned: false,
     tags: [''],
     postId: '',
-    can_write: true
+    canWrite: true
     // updatedAt: string
   })
   const status = reactive({
@@ -48,16 +48,16 @@ export const useText = (mode: Ref<'edit' | 'preview' | 'editable'>) => {
       try {
         const result = await getNote(objId)
         postInfo.content = decode(result.content)
-        postInfo.is_public_read = result.is_public_read || false
-        postInfo.is_public_write = result.is_public_write || false
+        postInfo.isPublicRead = result.isPublicRead || false
+        postInfo.isPublicWrite = result.isPublicWrite || false
         postInfo.pinned = result.pinned || false
         postInfo.tags = result.tags || ['']
         saveText = postInfo.content
 
         // 若该笔记是公开只读的，判断是否为笔记owner
-        if (postInfo.is_public_read && !postInfo.is_public_write) {
-          postInfo.can_write =
-            result.owner.objectId === store.get('LC_userinfo')?.objectId
+        if (postInfo.isPublicRead && !postInfo.isPublicWrite) {
+          postInfo.canWrite =
+            result.owner.objectId === store.get('LcUserInfo')?.objectId
         }
       } catch (error) {
         console.log(error)
@@ -163,18 +163,18 @@ export const useText = (mode: Ref<'edit' | 'preview' | 'editable'>) => {
     status.isPublicing = true
     try {
       if (postInfo.postId) {
-        if (postInfo.is_public_read) {
+        if (postInfo.isPublicRead) {
           await cancelPublicNote(postInfo.postId)
-          postInfo.is_public_write = false
+          postInfo.isPublicWrite = false
         } else {
           const editable = await comfirmPublicWrite()
           await makePublicNote(postInfo.postId, editable)
           if (editable) {
-            postInfo.is_public_write = true
+            postInfo.isPublicWrite = true
           }
         }
-        const msg = postInfo.is_public_read ? `取消公开` : `公开`
-        postInfo.is_public_read = !postInfo.is_public_read
+        const msg = postInfo.isPublicRead ? `取消公开` : `公开`
+        postInfo.isPublicRead = !postInfo.isPublicRead
         Notify({ type: 'success', message: `操作成功：笔记已${msg}` })
       } else {
         Notify(`请先保存笔记`)

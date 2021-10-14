@@ -31,11 +31,11 @@ const isAutoDark = ref(false)
 const isDark = ref(false)
 
 const setUsername = () => {
-  username.value = store.get('LC_userinfo')?.username || ''
+  username.value = store.get('LcUserInfo')?.username || ''
 }
 
 const logOut = () => {
-  store.removeLocal('LC_userinfo')
+  store.removeLocal('LcUserInfo')
   store.removeLocal('leanCloundKeys')
 }
 

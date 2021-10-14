@@ -1,8 +1,9 @@
-import { getNotes } from '@/api/notes'
+import { getNotes, getPinnedIds } from '@/api/notes'
 import { NoteRes } from '@/api/notes'
 import { reactive, ref } from '@vue/reactivity'
 import { onMounted } from '@vue/runtime-core'
 import { decode } from 'js-base64'
+import store from '@/utils/stores'
 
 export interface Tag {
   id: number
@@ -28,10 +29,6 @@ export const getTag = (tags: string[] | undefined) => {
   return tagObj
 }
 
-// const sortByTime = (a: Article, b: Article) => {
-//   return Date.parse(b.time) - Date.parse(a.time)
-// }
-
 // todo: 去除md格式...
 // 匹配“$#+ ”？
 const getTitle = (text: string) => {
@@ -44,7 +41,6 @@ const getAbstract = (text: string) => {
   const ll = text.trimLeft().split('\n')
   return ll[1] ? ll.slice(1, ll.length).join(' ') : ll[0]
 }
-// getNotes({where: JSON.stringify({ pinned: true })}) 获取所有置顶文章
 
 const getArticleFromNote = (res: NoteRes[]): Article[] => {
   return res.map((x, idx) => {
@@ -75,11 +71,12 @@ const useArticle = () => {
   const totalPages = ref(1)
   const notesPerPage = 10
 
-  // 获取一页非置顶文章（之后还要传入pinnedIds）
+  // 获取一页非置顶文章
   const getArticlePage = async (): Promise<void> => {
+    const pinnedIds = store.get('LcPinnedIds')
     const query = {
-      where: JSON.stringify({ pinned: { $ne: true } }),
-      // where: JSON.stringify({ postId: { $nin: pinnedIds } }),
+      // where: JSON.stringify({ pinned: { $ne: true } }),
+      where: JSON.stringify({ objectId: { $nin: pinnedIds } }),
       limit: notesPerPage,
       skip: pageNum.value * notesPerPage - notesPerPage,
       count: 1
@@ -108,31 +105,22 @@ const useArticle = () => {
   }
 
   const initArticleList = async (): Promise<void> => {
-    // const pinnedIds = await getPinnedIds()
+    const pinnedIds = await getPinnedIds().then((res) => {
+      store.setSession('LcSettingId', res.results[0].objectId)
+      return res.results[0].pinnedNotes
+    })
+    store.setSession('LcPinnedIds', pinnedIds)
 
     // 获取所有置顶文章
     const queryPinned = {
-      where: JSON.stringify({ pinned: true })
-      // where: JSON.stringify({ postId: {$in: pinnedIds} })
+      // where: JSON.stringify({ pinned: true })
+      where: JSON.stringify({ objectId: { $in: pinnedIds } })
     }
     const res = await getNotes(queryPinned)
     pinnedArticleList.value = getArticleFromNote(res.results)
 
     // 获取一页非置顶文章
     getArticlePage()
-
-    // 选出置顶的
-    // const topArticles: Article[] = articles.filter((x) => x.pinned === true)
-
-    // 非置顶的
-    // const otherArticles: Article[] = articles.filter((x) => x.pinned === false)
-
-    // 按时间从新到旧排序
-    // topArticles.sort(sortByTime)
-    // otherArticles.sort(sortByTime)
-
-    // pinnedArticleList.value = topArticles
-    // articleList.value = otherArticles
   }
 
   // 刷新列表

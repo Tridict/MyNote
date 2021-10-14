@@ -106,7 +106,7 @@ const onLogin = async (mode = '登录') => {
         password: data.password
       })
     }
-    store.setLocal('LC_userinfo', userinfo)
+    store.setLocal('LcUserInfo', userinfo)
     Notify({
       type: 'success',
       message: `你好，${data.username}，${mode}成功啦！`

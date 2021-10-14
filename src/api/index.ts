@@ -31,7 +31,7 @@ axios.interceptors.request.use(
     // 在发送请求之前做些什么
     const { BASE_URL, appId, key } = store.getLocal('leanCloudKeys')
 
-    const sessionToken = store.get('LC_userinfo')?.sessionToken
+    const sessionToken = store.get('LcUserInfo')?.sessionToken
 
     config.baseURL = BASE_URL
     const headers: Headers = {

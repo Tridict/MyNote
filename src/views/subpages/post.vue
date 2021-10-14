@@ -73,7 +73,7 @@
         @click="handlePublic"
         v-if="postInfo.can_write"
       >
-        <span v-if="postInfo.is_public_read">取消公开</span>
+        <span v-if="postInfo.isPublicRead">取消公开</span>
         <span v-else>
           公开笔记
           <div class="uploader-warn van-action-sheet__subname">

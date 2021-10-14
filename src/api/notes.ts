@@ -8,9 +8,9 @@ export interface NoteRes {
   content: string
   createdAt: string
   deleted: boolean
-  is_draft: boolean
-  is_public_read?: boolean
-  is_public_write?: boolean
+  isDraft: boolean
+  isPublicRead?: boolean
+  isPublicWrite?: boolean
   objectId: string
   owner: User
   pinned?: boolean
@@ -25,6 +25,7 @@ interface Query {
   skip?: number // 从第几条开始获取
   where?: string // JSON.stringify(object) 根据列名称条件筛选
   keys?: string // 限定返回的字段（只返回某些列，或者不返回某些列）
+  include?: string // 不确定，请查文档确认
   [key: string]: string | number | undefined
 }
 
@@ -64,13 +65,7 @@ export const createNote = (
     owner: currentUser,
     ACL: {
       [currentUser.objectId]: { write: true, read: true }
-    },
-    pinned: false,
-    tags: [],
-    is_public_read: false,
-    is_public_write: false,
-    shared_to: [],
-    deleted: false
+    }
   })
 }
 
@@ -87,16 +82,16 @@ export const updateNote = (
 
 // 公开笔记————会遇到不能add fields的问题？？？
 export const makePublicNote = (postId: string, editable = false) => {
-  const userId = store.get('LC_userinfo')?.objectId
+  const userId = store.get('LcUserInfo')?.objectId
   if (editable) {
     return axios.put(`/1.1/classes/Note/${postId}`, {
-      is_public_read: true,
-      is_public_write: true,
+      isPublicRead: true,
+      isPublicWrite: true,
       ACL: { '*': { write: true, read: true } }
     })
   } else {
     return axios.put(`/1.1/classes/Note/${postId}`, {
-      is_public_read: true,
+      isPublicRead: true,
       ACL: { [userId]: { write: true }, '*': { read: true } }
     })
   }
@@ -104,24 +99,47 @@ export const makePublicNote = (postId: string, editable = false) => {
 
 // 取消公开
 export const cancelPublicNote = (postId: string) => {
-  const userId = store.get('LC_userinfo')?.objectId
+  const userId = store.get('LcUserInfo')?.objectId
   return axios.put(`/1.1/classes/Note/${postId}`, {
-    is_public_read: false,
-    is_public_write: false,
+    isPublicRead: false,
+    isPublicWrite: false,
     ACL: {
       [userId]: { write: true, read: true }
     }
   })
 }
 
-// 置顶/取消置顶
-export const pinnedNote = (postId: string, oldPinned: boolean | undefined) => {
-  return axios.put(`/1.1/classes/Note/${postId}`, {
-    pinned: !oldPinned
-  })
+export const getPinnedIds = (): Promise<{
+  results: { pinnedNotes: string[]; objectId: string }[]
+}> => {
+  return axios.get(`/1.1/classes/Settings?keys=pinnedNotes`)
 }
 
-// 分享笔记给指定用户（需要用户的objectId -- 如何查询？？shared_to字段写）
+// 置顶/取消置顶
+export const pinnedNote = (postId: string, oldPinned: boolean | undefined) => {
+  let pinnedIds = store.get('LcPinnedIds')
+  if (oldPinned) {
+    // 删除
+    pinnedIds = pinnedIds.filter((x: string) => x !== postId)
+  } else {
+    // 新增
+    pinnedIds.push(postId)
+  }
+  // 更新settings
+  const settingId = store.get('LcSettingId')
+  return axios
+    .put(`/1.1/classes/Settings/${settingId}`, {
+      pinnedNotes: pinnedIds
+    })
+    .then(() => {
+      store.setSession('LcPinnedIds', pinnedIds)
+    })
+  // return axios.put(`/1.1/classes/Note/${postId}`, {
+  //   pinned: !oldPinned
+  // })
+}
+
+// 分享笔记给指定用户（需要用户的objectId -- 如何查询？？sharedTo字段写）
 export const shareNote = (
   sharedUserId: string,
   postId: string,
@@ -134,7 +152,7 @@ export const shareNote = (
   )
   return axios.put(`/1.1/classes/Note/${postId}`, {
     ACL,
-    shared_to: [...oldSharedTo, sharedUserId]
+    sharedTo: [...oldSharedTo, sharedUserId]
   })
 }
 
