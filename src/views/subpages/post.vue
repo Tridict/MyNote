@@ -1,6 +1,6 @@
 <template>
   <div class="editor-wrap">
-    <van-nav-bar title="MyNote">
+    <van-nav-bar class="nav-bar" title="MyNote">
       <template #left>
         <van-button size="small" @click="handleSave" v-if="isEdit">
           <Icon name="save" :loading="status.isSaving" />
@@ -19,12 +19,13 @@
       </template>
     </van-nav-bar>
     <div class="tags-wrap">
-      <svg width="1em" height="1em" viewBox="0 0 24 24">
+      <!-- <svg width="1em" height="1em" viewBox="0 0 24 24">
         <path
           d="M6.5 10C7.3 10 8 9.3 8 8.5S7.3 7 6.5 7S5 7.7 5 8.5S5.7 10 6.5 10M9 6l7 7l-5 5l-7-7V6h5m0-2H4c-1.1 0-2 .9-2 2v5c0 .6.2 1.1.6 1.4l7 7c.3.4.8.6 1.4.6s1.1-.2 1.4-.6l5-5c.4-.4.6-.9.6-1.4c0-.6-.2-1.1-.6-1.4l-7-7C10.1 4.2 9.6 4 9 4m4.5 1.7l1-1l6.9 6.9c.4.4.6.9.6 1.4s-.2 1.1-.6 1.4L16 19.8l-1-1l5.7-5.8l-7.2-7.3z"
-          fill="currentColor"
+          fill="#7232dd"
         ></path>
-      </svg>
+      </svg> -->
+        <svg width="1em" height="1em" viewBox="0 0 24 24"><path d="M5.5 9A1.5 1.5 0 0 0 7 7.5A1.5 1.5 0 0 0 5.5 6A1.5 1.5 0 0 0 4 7.5A1.5 1.5 0 0 0 5.5 9m11.91 2.58c.36.36.59.86.59 1.42c0 .55-.22 1.05-.59 1.41l-5 5a1.996 1.996 0 0 1-2.83 0l-6.99-6.99C2.22 12.05 2 11.55 2 11V6c0-1.11.89-2 2-2h5c.55 0 1.05.22 1.41.58l7 7m-3.87-5.87l1-1l6.87 6.87c.37.36.59.87.59 1.42c0 .55-.22 1.05-.58 1.41l-5.38 5.38l-1-1L20.75 13l-7.21-7.29z" fill="#7232dd"></path></svg>
       <ArticleTag :tags="tagList" />
       <van-tag plain @click="showTagManage = true">+</van-tag>
     </div>
@@ -277,9 +278,11 @@ onBeforeUnmount(() => {
       }
     }
   }
-  :deep().van-button--small {
-    width: var(--van-button-small-height);
-    margin: 0.1rem;
+  .nav-bar {
+    :deep().van-button--small {
+      width: var(--van-button-small-height);
+      margin: 0.1rem;
+    }
   }
 }
 
@@ -287,10 +290,13 @@ onBeforeUnmount(() => {
   padding: $margin-items * 0.5 $margin-items;
   background-color: var(--van-cell-background-color);
   display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  background: $bg;
   svg {
     margin-right: 10px;
+    // color: '#7232dd';
   }
-  background: $bg;
 }
 
 .uploader-wrap {

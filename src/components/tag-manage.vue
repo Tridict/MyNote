@@ -20,9 +20,11 @@
     <van-cell-group inset title="全部标签">
       <div class="all-tags-wrap">
         <span @click="handleSelectTag">
-          <ArticleTag :tags="allTagList" color="gray" />
+          <ArticleTag :tags="allTagList" color="gray" mode="button" />
         </span>
-        <van-tag plain @click="showPopInput = true">+新建标签</van-tag>
+        <van-button size="small" plain @click="showPopInput = true">
+          +新建标签
+        </van-button>
       </div>
     </van-cell-group>
   </van-action-sheet>
@@ -80,9 +82,9 @@ watch(
   background: $bg;
   :deep().van-field__control--custom {
     flex-wrap: wrap;
-    .article-tag {
-      margin-bottom: 3px;
-    }
+    //   .article-tag {
+    //     margin-bottom: 3px;
+    //   }
   }
 }
 .all-tags-wrap {
