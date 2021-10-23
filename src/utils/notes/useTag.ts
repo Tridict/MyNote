@@ -1,7 +1,14 @@
-import { getTags, updateTag, createTag, delTag } from '@/api/tag'
-import { createNoteTagMap, getTagsByNote } from '@/api/tag'
+import { getAllTags, updateTag, createTag, delTag } from '@/api/tag'
+import {
+  createNoteTagMap,
+  queryNoteTagMap,
+  queryTagsByNote,
+  delNoteTagMap
+} from '@/api/noteTagMap'
 import { ref } from '@vue/reactivity'
 import { onMounted } from '@vue/runtime-core'
+
+const TAG_COLOR_EXIST = '#7232dd'
 
 export interface Tag {
   id: number // 作为keys用的，不用于objId
@@ -18,7 +25,7 @@ export const useTag = (postId: string) => {
 
   // 获取标签列表
   const _getAllTags = async () => {
-    const res = await getTags()
+    const res = await getAllTags()
     allTagList.value = res.results.map((x, idx) => {
       return {
         id: idx,
@@ -29,8 +36,8 @@ export const useTag = (postId: string) => {
   }
 
   // 获取某篇笔记的所有标签
-  const _queryTagsByNote = async () => {
-    const res = await getTagsByNote(postId)
+  const getTagsByNote = async (noteId: string) => {
+    const res = await queryTagsByNote(noteId)
     tagList.value = res.results.map((x, idx) => {
       return {
         id: idx,
@@ -42,19 +49,21 @@ export const useTag = (postId: string) => {
 
   // 初始化TagList
   const _init = async () => {
-    await _queryTagsByNote()
+    await getTagsByNote(postId)
     await _getAllTags()
+    for (const tag of tagList.value) {
+      const target = allTagList.value.filter((x) => x.text == tag.text)
+      target[0].color = TAG_COLOR_EXIST
+    }
   }
 
   // 从TagList中搜索Tag；若存在，return tagObj; 否则，return null
   const _filterByName = (tagName: string, array: Tag[]): Tag | null => {
     for (const x of array) {
       if (x.text == tagName) {
-        console.log('yes!')
         return x
       }
     }
-    console.log('no')
     return null
   }
 
@@ -63,9 +72,39 @@ export const useTag = (postId: string) => {
     const tagObj = _filterByName(tagName, allTagList.value)
     if (tagObj) {
       // 从笔记中新增该标签
-      tagObj.color = '#7232dd'
+      tagObj.color = TAG_COLOR_EXIST
       createNoteTagMap(tagObj.objId, postId)
       tagList.value.push(tagObj)
+    }
+  }
+
+  // 移除tag和笔记的关联（根据tagName从allTagList中筛选）
+  const _delMapByName = async (tagName: string) => {
+    // 查询tagId
+    const tagObj = _filterByName(tagName, allTagList.value)
+    if (tagObj) {
+      // 从笔记中移除该标签
+      // 先移除颜色
+      tagObj.color = undefined
+      // 查找对应的mapId
+      const results = await queryNoteTagMap({
+        where: JSON.stringify({
+          tag: {
+            __type: 'Pointer',
+            className: 'Tag',
+            objectId: tagObj.objId
+          },
+          note: {
+            __type: 'Pointer',
+            className: 'Note',
+            objectId: postId
+          }
+        })
+      })
+      // 删除map
+      delNoteTagMap(results.results[0].objectId)
+      // 从tagList中移除
+      tagList.value = tagList.value.filter((x) => x.text !== tagName)
     }
   }
 
@@ -98,11 +137,10 @@ export const useTag = (postId: string) => {
   const handleSelectTag = (event: MouseEvent) => {
     const el = event.target as HTMLElement
     const tagName = el.innerText
-    console.log(tagName)
+    // console.log(tagName)
     const obj = _filterByName(tagName, tagList.value)
     if (obj) {
-      // 从笔记中移除该标签（删除相应的NoteTagMap）
-      console.log(`从笔记中移除该标签: ${obj.text}`)
+      _delMapByName(tagName)
     } else {
       _createMapByName(tagName)
     }
@@ -134,6 +172,7 @@ export const useTag = (postId: string) => {
     allTagList,
     showPopInput,
     newTagName,
+    queryTagsByNote: getTagsByNote,
     handleSelectTag,
     // handleCreateTag,
     handleAddTag

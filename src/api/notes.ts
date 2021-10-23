@@ -24,7 +24,7 @@ export const getAllNotes = (): Promise<{ results: NoteRes[] }> => {
 }
 
 // 查询笔记
-export const getNotes = (
+export const queryNotes = (
   // 默认获取非置顶文章
   query: Query = {
     where: JSON.stringify({ pinned: { $ne: true } })
@@ -42,7 +42,7 @@ export const getNote = (postId: string): Promise<NoteRes> => {
   return axios.get(`/1.1/classes/Note/${postId}`)
 }
 
-// 创建笔记
+// 创建一篇新的笔记
 export const createNote = (
   noteContent: string,
   currentUser = getUser()
@@ -59,7 +59,7 @@ export const createNote = (
   })
 }
 
-// 保存（更新）笔记
+// 保存（更新）单篇笔记
 export const updateNote = (
   params: { noteContent: string; postId: string },
   currentUser = getUser()
@@ -68,6 +68,11 @@ export const updateNote = (
     content: encode(params.noteContent),
     owner: currentUser
   })
+}
+
+// 删除笔记（要删除对应的map）
+export const delNote = (postId: string) => {
+  return axios.delete(`/1.1/classes/Note/${postId}`)
 }
 
 // 公开笔记————会遇到不能add fields的问题？？？
@@ -144,11 +149,6 @@ export const shareNote = (
     ACL,
     sharedTo: [...oldSharedTo, sharedUserId]
   })
-}
-
-// 删除笔记
-export const delNote = (postId: string) => {
-  return axios.delete(`/1.1/classes/Note/${postId}`)
 }
 
 // TODO：批量创建笔记（批量导入的处理——）

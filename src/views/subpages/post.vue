@@ -137,7 +137,7 @@ const {
   checkIfSaved
 } = useText(mode)
 const router = useRouter()
-const { tagList, handleAddTag } = useTag(postInfo.postId)
+const { tagList, queryTagsByNote } = useTag(postInfo.postId)
 
 const handleBack = () => {
   checkIfSaved().then((val) => {
@@ -183,6 +183,7 @@ onMounted(() => {
     var message = '你确定要关闭吗？'
     return message
   }
+  queryTagsByNote(postInfo.postId)
 })
 
 onBeforeUnmount(() => {

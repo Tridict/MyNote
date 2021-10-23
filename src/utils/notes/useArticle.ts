@@ -1,4 +1,4 @@
-import { getNotes, getPinnedIds } from '@/api/notes'
+import { queryNotes, getPinnedIds } from '@/api/notes'
 import { NoteRes } from '@/api/notes'
 import { reactive, ref } from '@vue/reactivity'
 import { onMounted } from '@vue/runtime-core'
@@ -79,7 +79,7 @@ const useArticle = () => {
     }
     pageNum.value += 1
     try {
-      const res = await getNotes(query)
+      const res = await queryNotes(query)
       if (typeof res.count === 'number') {
         totalPages.value = Math.ceil(res.count / notesPerPage)
         // console.log(`共${res.count}篇非置顶笔记，分为${totalPages.value}页`)
@@ -112,7 +112,7 @@ const useArticle = () => {
       // where: JSON.stringify({ pinned: true })
       where: JSON.stringify({ objectId: { $in: pinnedIds } })
     }
-    const res = await getNotes(queryPinned)
+    const res = await queryNotes(queryPinned)
     pinnedArticleList.value = getArticleFromNote(res.results)
 
     // 获取一页非置顶文章
