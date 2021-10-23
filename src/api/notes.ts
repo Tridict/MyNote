@@ -3,6 +3,7 @@ import axios from '@/api'
 import qs from 'querystring'
 import store from '@/utils/stores'
 import { Pointer, Query, getUser } from '@/utils/getPointer'
+import { Tag } from '@/utils/notes/useTag'
 
 export interface NoteRes {
   content: string
@@ -11,7 +12,7 @@ export interface NoteRes {
   isPublicRead?: boolean
   isPublicWrite?: boolean
   pinned?: boolean
-  tags?: string[]
+  tags?: Tag[]
   owner: Pointer
   objectId: string
   createdAt: string
@@ -61,12 +62,13 @@ export const createNote = (
 
 // 保存（更新）单篇笔记
 export const updateNote = (
-  params: { noteContent: string; postId: string },
+  params: { noteContent: string; postId: string; tags?: Tag[] },
   currentUser = getUser()
 ) => {
   return axios.put(`/1.1/classes/Note/${params.postId}`, {
     content: encode(params.noteContent),
-    owner: currentUser
+    owner: currentUser,
+    tags: params.tags || []
   })
 }
 

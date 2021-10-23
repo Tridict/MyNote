@@ -8,8 +8,19 @@ import {
 import { ref } from '@vue/reactivity'
 import { onMounted } from '@vue/runtime-core'
 
-const TAG_COLOR_EXIST = '#7232dd'
+export const TAG_COLOR_EXIST = '#7232dd'
 
+// 获取某篇笔记的所有标签
+export const getTagsByNote = async (noteId: string) => {
+  const res = await queryTagsByNote(noteId)
+  return res.results.map((x, idx) => {
+    return {
+      id: idx,
+      text: x.tagName,
+      objId: x.objectId
+    }
+  })
+}
 export interface Tag {
   id: number // 作为keys用的，不用于objId
   text: string
@@ -35,26 +46,9 @@ export const useTag = (postId: string) => {
     })
   }
 
-  // 获取某篇笔记的所有标签
-  const getTagsByNote = async (noteId: string) => {
-    const res = await queryTagsByNote(noteId)
-    tagList.value = res.results.map((x, idx) => {
-      return {
-        id: idx,
-        text: x.tagName,
-        objId: x.objectId
-      }
-    })
-  }
-
   // 初始化TagList
   const _init = async () => {
-    await getTagsByNote(postId)
     await _getAllTags()
-    for (const tag of tagList.value) {
-      const target = allTagList.value.filter((x) => x.text == tag.text)
-      target[0].color = TAG_COLOR_EXIST
-    }
   }
 
   // 从TagList中搜索Tag；若存在，return tagObj; 否则，return null
@@ -103,8 +97,13 @@ export const useTag = (postId: string) => {
       })
       // 删除map
       delNoteTagMap(results.results[0].objectId)
-      // 从tagList中移除
-      tagList.value = tagList.value.filter((x) => x.text !== tagName)
+      // 从tagList中移除（使用原地操作保持使用引用值，实时更新父元素中的列表）
+      for (const i in tagList.value) {
+        if (tagList.value[i].text === tagName) {
+          tagList.value.splice(+i, 1)
+        }
+      }
+      // tagList.value = tagList.value.filter((x) => x.text !== tagName)
     }
   }
 
@@ -172,7 +171,6 @@ export const useTag = (postId: string) => {
     allTagList,
     showPopInput,
     newTagName,
-    queryTagsByNote: getTagsByNote,
     handleSelectTag,
     // handleCreateTag,
     handleAddTag

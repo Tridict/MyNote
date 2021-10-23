@@ -1,5 +1,9 @@
 <template>
-  <van-action-sheet v-model:show="show" title="添加标签">
+  <van-action-sheet
+    v-model:show="show"
+    title="添加标签"
+    @close="$emit('close', tagList)"
+  >
     <van-cell-group inset>
       <van-field class="current-tags-wrap">
         <template #input>
@@ -34,10 +38,12 @@
 </template>
 
 <script setup lang="ts">
-import { defineProps, ref, watch } from 'vue'
-import { useTag } from '@/utils/notes/useTag'
+import { defineProps, defineEmits, ref, watch } from 'vue'
+import { useTag, Tag, TAG_COLOR_EXIST } from '@/utils/notes/useTag'
 import ArticleTag from '@/components/common/article-tag.vue'
-const props = defineProps<{ isShow: boolean; postId: string }>()
+const props =
+  defineProps<{ isShow: boolean; postId: string; postTags: Tag[] }>()
+defineEmits(['close'])
 const show = ref(props.isShow)
 const tagFilterValue = ref('') // 暂时无法搜索tag
 
@@ -56,6 +62,17 @@ const {
   handleSelectTag,
   handleAddTag
 } = useTag(props.postId)
+
+watch(
+  () => props.postTags,
+  () => {
+    tagList.value = props.postTags
+    for (const tag of tagList.value) {
+      const target = allTagList.value.filter((x) => x.text == tag.text)
+      target[0].color = TAG_COLOR_EXIST
+    }
+  }
+)
 </script>
 
 <style lang="scss" scoped>

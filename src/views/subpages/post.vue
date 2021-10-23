@@ -19,6 +19,12 @@
       </template>
     </van-nav-bar>
     <div class="tags-wrap">
+      <svg width="1em" height="1em" viewBox="0 0 24 24">
+        <path
+          d="M6.5 10C7.3 10 8 9.3 8 8.5S7.3 7 6.5 7S5 7.7 5 8.5S5.7 10 6.5 10M9 6l7 7l-5 5l-7-7V6h5m0-2H4c-1.1 0-2 .9-2 2v5c0 .6.2 1.1.6 1.4l7 7c.3.4.8.6 1.4.6s1.1-.2 1.4-.6l5-5c.4-.4.6-.9.6-1.4c0-.6-.2-1.1-.6-1.4l-7-7C10.1 4.2 9.6 4 9 4m4.5 1.7l1-1l6.9 6.9c.4.4.6.9.6 1.4s-.2 1.1-.6 1.4L16 19.8l-1-1l5.7-5.8l-7.2-7.3z"
+          fill="currentColor"
+        ></path>
+      </svg>
       <ArticleTag :tags="tagList" />
       <van-tag plain @click="showTagManage = true">+</van-tag>
     </div>
@@ -47,6 +53,7 @@
         </div>
       </label>
       <div class="van-hairline--bottom"></div>
+      <!-- 导出 -->
       <a
         class="export-wrap"
         :download="saveFileName"
@@ -61,7 +68,7 @@
       <button
         class="van-action-sheet__item"
         @click="handlePin"
-        v-if="postInfo.can_write"
+        v-if="postInfo.canWrite"
       >
         <span v-if="postInfo.pinned">取消置顶</span>
         <span v-else>置顶笔记</span>
@@ -71,7 +78,7 @@
       <button
         class="van-action-sheet__item"
         @click="handlePublic"
-        v-if="postInfo.can_write"
+        v-if="postInfo.canWrite"
       >
         <span v-if="postInfo.isPublicRead">取消公开</span>
         <span v-else>
@@ -87,12 +94,17 @@
         class="van-action-sheet__item"
         style="color: red"
         @click="handleDelete"
-        v-if="postInfo.can_write"
+        v-if="postInfo.canWrite"
       >
         删除笔记
       </button>
     </van-action-sheet>
-    <TagManage :isShow="showTagManage" :postId="postInfo.postId" />
+    <TagManage
+      :isShow="showTagManage"
+      :postId="postInfo.postId"
+      :postTags="tagList"
+      @close="handleUpdateTags"
+    />
   </div>
 </template>
 
@@ -103,7 +115,6 @@ import { VantFile } from '@/types'
 import { useRouter } from 'vue-router'
 import { useExport } from '@/utils/notes/useExport'
 import { useText } from '@/utils/notes/useText'
-import { useTag } from '@/utils/notes/useTag'
 import Icon from '@/components/common/icons/navbar-icon.vue'
 import ArticleTag from '@/components/common/article-tag.vue'
 import TagManage from '@/components/tag-manage.vue'
@@ -121,7 +132,6 @@ const useMode = () => {
 
 const editorHeight = ref('calc(100vh - var(--van-nav-bar-height))')
 const showMore = ref(false)
-const showTagManage = ref(false)
 // const { editorHeight } = useKeyboard()
 const { getDownloadLink } = useExport()
 const { mode, isEdit, showPreview } = useMode()
@@ -129,6 +139,9 @@ const {
   status,
   postInfo,
   saveFileName,
+  showTagManage,
+  tagList,
+  handleUpdateTags,
   handlePin,
   handlePublic,
   saveNote,
@@ -137,7 +150,6 @@ const {
   checkIfSaved
 } = useText(mode)
 const router = useRouter()
-const { tagList, queryTagsByNote } = useTag(postInfo.postId)
 
 const handleBack = () => {
   checkIfSaved().then((val) => {
@@ -178,12 +190,11 @@ const handleSave = () => {
   })
 }
 
-onMounted(() => {
+onMounted(async () => {
   window.onbeforeunload = function closeWindow() {
     var message = '你确定要关闭吗？'
     return message
   }
-  queryTagsByNote(postInfo.postId)
 })
 
 onBeforeUnmount(() => {
@@ -273,8 +284,13 @@ onBeforeUnmount(() => {
 }
 
 .tags-wrap {
-  padding: 0 $margin-items;
+  padding: $margin-items * 0.5 $margin-items;
   background-color: var(--van-cell-background-color);
+  display: flex;
+  svg {
+    margin-right: 10px;
+  }
+  background: $bg;
 }
 
 .uploader-wrap {

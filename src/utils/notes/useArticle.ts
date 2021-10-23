@@ -16,14 +16,14 @@ export interface Article {
   pinned?: boolean
 }
 
-export const getTagObj = (tags: string[] | undefined) => {
-  const tagObj: Tag[] = []
-  if (tags === undefined) return tagObj
-  for (const i in tags) {
-    tagObj.push({ id: +i, text: tags[i], objId: 'aaaa' })
-  }
-  return tagObj
-}
+// export const getTagObj = (tags: string[] | undefined) => {
+//   const tagObj: Tag[] = []
+//   if (tags === undefined) return tagObj
+//   for (const i in tags) {
+//     tagObj.push({ id: +i, text: tags[i], objId: 'aaaa' })
+//   }
+//   return tagObj
+// }
 
 // todo: 去除md格式...
 // 匹配“$#+ ”？
@@ -48,7 +48,7 @@ const getArticleFromNote = (res: NoteRes[]): Article[] => {
       time,
       id: idx,
       postId: x.objectId,
-      tags: getTagObj(x.tags),
+      tags: x.tags,
       pinned: x.pinned
     }
   })
