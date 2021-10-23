@@ -4,12 +4,8 @@ import { reactive, ref } from '@vue/reactivity'
 import { onMounted } from '@vue/runtime-core'
 import { decode } from 'js-base64'
 import store from '@/utils/stores'
+import { Tag } from '@/utils/notes/useTag'
 
-export interface Tag {
-  id: number
-  text: string
-  color?: string
-}
 export interface Article {
   title: string
   abstract: string
@@ -20,11 +16,11 @@ export interface Article {
   pinned?: boolean
 }
 
-export const getTag = (tags: string[] | undefined) => {
+export const getTagObj = (tags: string[] | undefined) => {
   const tagObj: Tag[] = []
   if (tags === undefined) return tagObj
   for (const i in tags) {
-    tagObj.push({ id: +i, text: tags[i] })
+    tagObj.push({ id: +i, text: tags[i], objId: 'aaaa' })
   }
   return tagObj
 }
@@ -52,7 +48,7 @@ const getArticleFromNote = (res: NoteRes[]): Article[] => {
       time,
       id: idx,
       postId: x.objectId,
-      tags: getTag(x.tags),
+      tags: getTagObj(x.tags),
       pinned: x.pinned
     }
   })

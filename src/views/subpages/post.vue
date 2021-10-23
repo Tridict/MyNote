@@ -10,7 +10,7 @@
         </van-button>
       </template>
       <template #right>
-        <van-button size="small" @click="showPreview" v-if="postInfo.can_write">
+        <van-button size="small" @click="showPreview" v-if="postInfo.canWrite">
           <Icon name="showPreview" :active="isEdit" />
         </van-button>
         <van-button size="small" @click="showMore = true">
@@ -18,10 +18,10 @@
         </van-button>
       </template>
     </van-nav-bar>
-    <!-- <div class="tags-wrap">
-      <ArticleTag :tags="getTag(postInfo.tags)" />
-      <van-tag plain @click="handleAddtag">+</van-tag>
-    </div> -->
+    <div class="tags-wrap">
+      <ArticleTag :tags="tagList" />
+      <van-tag plain @click="showTagManage = true">+</van-tag>
+    </div>
     <div class="v-md-editor-wrap">
       <v-md-editor
         v-model="postInfo.content"
@@ -92,6 +92,7 @@
         删除笔记
       </button>
     </van-action-sheet>
+    <TagManage :isShow="showTagManage" :postId="postInfo.postId" />
   </div>
 </template>
 
@@ -99,12 +100,13 @@
 import { ref, onMounted, computed, onBeforeUnmount } from 'vue'
 // import { Notify } from 'vant'
 import { VantFile } from '@/types'
-import { getTag } from '@/utils/notes/useArticle'
 import { useRouter } from 'vue-router'
 import { useExport } from '@/utils/notes/useExport'
 import { useText } from '@/utils/notes/useText'
+import { useTag } from '@/utils/notes/useTag'
 import Icon from '@/components/common/icons/navbar-icon.vue'
 import ArticleTag from '@/components/common/article-tag.vue'
+import TagManage from '@/components/tag-manage.vue'
 
 const useMode = () => {
   type Mode = 'edit' | 'preview' | 'editable'
@@ -119,6 +121,7 @@ const useMode = () => {
 
 const editorHeight = ref('calc(100vh - var(--van-nav-bar-height))')
 const showMore = ref(false)
+const showTagManage = ref(false)
 // const { editorHeight } = useKeyboard()
 const { getDownloadLink } = useExport()
 const { mode, isEdit, showPreview } = useMode()
@@ -126,7 +129,6 @@ const {
   status,
   postInfo,
   saveFileName,
-  handleAddtag,
   handlePin,
   handlePublic,
   saveNote,
@@ -135,6 +137,7 @@ const {
   checkIfSaved
 } = useText(mode)
 const router = useRouter()
+const { tagList, handleAddTag } = useTag(postInfo.postId)
 
 const handleBack = () => {
   checkIfSaved().then((val) => {

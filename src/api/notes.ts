@@ -2,38 +2,28 @@ import { encode } from 'js-base64'
 import axios from '@/api'
 import qs from 'querystring'
 import store from '@/utils/stores'
-import { User, getUser } from '@/utils/getPointer'
+import { Pointer, Query, getUser } from '@/utils/getPointer'
 
 export interface NoteRes {
   content: string
-  createdAt: string
   deleted: boolean
   isDraft: boolean
   isPublicRead?: boolean
   isPublicWrite?: boolean
-  objectId: string
-  owner: User
   pinned?: boolean
   tags?: string[]
+  owner: Pointer
+  objectId: string
+  createdAt: string
   updatedAt: string
 }
 
-// 参考：[查询约束](https://leancloud.cn/docs/rest_api.html#hash827796182)
-interface Query {
-  order?: string // 排序，可以是索引名称 'createdAt' '-createdAt' 'updatedAt' '-updatedAt' 还可以是组合（例如'createdAt,-pubUser' 以 createdAt 升序和 pubUser 降序进行排序）
-  limit?: number // 获取几条数据
-  skip?: number // 从第几条开始获取
-  where?: string // JSON.stringify(object) 根据列名称条件筛选
-  keys?: string // 限定返回的字段（只返回某些列，或者不返回某些列）
-  include?: string // 不确定，请查文档确认
-  [key: string]: string | number | undefined
-}
-
-// 读取笔记列表
+// 读取所有笔记
 export const getAllNotes = (): Promise<{ results: NoteRes[] }> => {
   return axios.get(`/1.1/classes/Note`)
 }
 
+// 查询笔记
 export const getNotes = (
   // 默认获取非置顶文章
   query: Query = {
