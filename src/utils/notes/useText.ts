@@ -1,4 +1,11 @@
-import { computed, onBeforeMount, Ref, reactive } from 'vue'
+import {
+  computed,
+  onBeforeMount,
+  Ref,
+  ref,
+  reactive,
+  onBeforeUnmount
+} from 'vue'
 import { useRouter } from 'vue-router'
 import { Dialog, Notify } from 'vant'
 import { decode } from 'js-base64'
@@ -15,10 +22,19 @@ import {
   cancelPublicNote,
   pinnedNote
 } from '@/api/notes'
+import { getTagsByNote, Tag } from '@/utils/notes/useTag'
 
 export const useText = (mode: Ref<'edit' | 'preview' | 'editable'>) => {
   const BEGIN_TEXT = '## 在此编辑您的内容' //记录初始文本，如果没有修改，则不需要保存
   let saveText = '' //记录上次保存的内容，如果有本地内容未保存，则在退出时候给提示
+  let saveTag = '' //记录上次保存的tags，如果有本地内容未保存，则在退出时候保存
+  const showTagManage = ref(false)
+  const tagList = ref<Tag[]>([])
+  const handleUpdateTags = (tags: Tag[]) => {
+    showTagManage.value = false
+    tagList.value = tags
+  }
+
   const postInfo = reactive({
     content: '',
     // createdAt: '',
@@ -27,7 +43,7 @@ export const useText = (mode: Ref<'edit' | 'preview' | 'editable'>) => {
     isPublicRead: false,
     isPublicWrite: false,
     pinned: false,
-    tags: [''],
+    // tags: [],
     postId: '',
     canWrite: true
     // updatedAt: string
@@ -51,7 +67,7 @@ export const useText = (mode: Ref<'edit' | 'preview' | 'editable'>) => {
         postInfo.isPublicRead = result.isPublicRead || false
         postInfo.isPublicWrite = result.isPublicWrite || false
         postInfo.pinned = result.pinned || false
-        postInfo.tags = result.tags || ['']
+        // postInfo.tags = result.tags
         saveText = postInfo.content
 
         // 若该笔记是公开只读的，判断是否为笔记owner
@@ -59,6 +75,10 @@ export const useText = (mode: Ref<'edit' | 'preview' | 'editable'>) => {
           postInfo.canWrite =
             result.owner.objectId === store.get('LcUserInfo')?.objectId
         }
+
+        // 得到postId了，获取tagList
+        tagList.value = await getTagsByNote(postInfo.postId)
+        saveTag = JSON.stringify(tagList.value)
       } catch (error) {
         console.log(error)
         router.replace('/notes')
@@ -91,7 +111,8 @@ export const useText = (mode: Ref<'edit' | 'preview' | 'editable'>) => {
       if (postInfo.postId) {
         await updateNote({
           noteContent: postInfo.content,
-          postId: postInfo.postId
+          postId: postInfo.postId,
+          tags: tagList.value
         })
       } else {
         // 还没有postId，新建笔记
@@ -100,6 +121,7 @@ export const useText = (mode: Ref<'edit' | 'preview' | 'editable'>) => {
         router.replace('/post?id=' + postInfo.postId)
       }
       saveText = postInfo.content
+      saveTag = JSON.stringify(tagList.value)
       Notify({ type: 'success', message: `保存成功`, duration: 800 })
       status.isSaving = false
       return true
@@ -202,10 +224,6 @@ export const useText = (mode: Ref<'edit' | 'preview' | 'editable'>) => {
     status.isPinning = false
   }
 
-  const handleAddtag = () => {
-    console.log('新建标签')
-  }
-
   const checkIfSaved = async () => {
     if (postInfo.content == BEGIN_TEXT || postInfo.content == saveText) {
       return true
@@ -232,6 +250,16 @@ export const useText = (mode: Ref<'edit' | 'preview' | 'editable'>) => {
   })
 
   onBeforeMount(init)
+  onBeforeUnmount(async () => {
+    // 若果当前的tagList未保存，则保存一下
+    if (JSON.stringify(tagList.value) !== saveTag) {
+      await updateNote({
+        noteContent: postInfo.content,
+        postId: postInfo.postId,
+        tags: tagList.value
+      })
+    }
+  })
 
   // 目前仅实现了在文末加文字的功能...（需要知道光标位置？）
   // const addText = (txt = '*') => {
@@ -257,7 +285,9 @@ export const useText = (mode: Ref<'edit' | 'preview' | 'editable'>) => {
     saveFileName,
     postInfo,
     status,
-    handleAddtag,
+    showTagManage,
+    tagList,
+    handleUpdateTags,
     handlePin,
     handlePublic,
     saveNote,
