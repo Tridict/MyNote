@@ -26,7 +26,7 @@
     </van-cell-group>
     <div class="btn-wrap">
       <van-button type="primary" block round @click="handleAnalyze">
-        <van-loading v-if="status.isAnalyzing" size="20"/>
+        <van-loading v-if="status.isAnalyzing" size="20" />
         <span v-else>分析</span>
       </van-button>
     </div>
@@ -55,7 +55,8 @@ import { useRouter } from 'vue-router'
 import { Notify } from 'vant'
 // import { useEditorOptions } from '@/utils/useActionSheet'
 import { createNote } from '@/api/notes'
-import { spy } from '@/api/spy'
+import { spy, spyJuejin } from '@/api/spy'
+import { getQueryParams } from '@/utils/urlQuery'
 import Icon from '@/components/common/icons/navbar-icon.vue'
 
 const status = reactive({
@@ -76,7 +77,13 @@ const onBack = () => {
 const handleAnalyze = async () => {
   status.isAnalyzing = true
   try {
-    const result = await spy(url.value)
+    const mode = getQueryParams('mode')
+    let result
+    if (mode && mode == 'j') {
+      result = await spyJuejin(url.value)
+    } else {
+      result = await spy(url.value)
+    }
     console.log(result)
     let resultTable = '```yaml\nurl: "' + url.value + '"'
     if (typeof result.result === 'object' && result.result != null) {
@@ -85,9 +92,11 @@ const handleAnalyze = async () => {
         if (meta && meta.length) {
           for (const i in meta) {
             if (meta[i]?.meta_key == 'title') {
-              resultTable=`# [${meta[i]?.meta_value}](${url.value})\n\n${resultTable}`
+              resultTable = `# [${meta[i]?.meta_value}](${url.value})\n\n${resultTable}`
             } else {
-              resultTable += `\n${meta[i]?.meta_key}: ${JSON.stringify(meta[i]?.meta_value)}`
+              resultTable += `\n${meta[i]?.meta_key}: ${JSON.stringify(
+                meta[i]?.meta_value
+              )}`
             }
           }
         }
@@ -103,7 +112,7 @@ const handleAnalyze = async () => {
 const saveAsNote = async () => {
   try {
     await createNote(resultInfos.value)
-    Notify({type: 'success', message: '公众号内容已保存到笔记列表'})
+    Notify({ type: 'success', message: '公众号内容已保存到笔记列表' })
   } catch (error) {
     console.log(error)
   }

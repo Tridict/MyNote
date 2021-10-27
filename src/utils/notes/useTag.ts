@@ -135,8 +135,8 @@ export const useTag = (postId: string) => {
   // 把选择的tag添加到笔记 / 从笔记中移除（未写）
   const handleSelectTag = (event: MouseEvent) => {
     const el = event.target as HTMLElement
-    const tagName = el.innerText
-    // console.log(tagName)
+    const tagName = el.textContent || el.innerText
+    console.log('tagName', tagName)
     const obj = _filterByName(tagName, tagList.value)
     if (obj) {
       _delMapByName(tagName)

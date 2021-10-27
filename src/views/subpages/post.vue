@@ -33,7 +33,6 @@
       <v-md-editor
         v-model="postInfo.content"
         :mode="mode"
-        :height="editorHeight"
         left-toolbar="undo redo | toc | ul ol quote table link code | clear"
         right-toolbar=""
       ></v-md-editor>
@@ -131,7 +130,7 @@ const useMode = () => {
   return { mode, isEdit, showPreview }
 }
 
-const editorHeight = ref('calc(100vh - var(--van-nav-bar-height))')
+// const editorHeight = ref('calc(100vh - var(--van-nav-bar-height))')
 const showMore = ref(false)
 // const { editorHeight } = useKeyboard()
 const { getDownloadLink } = useExport()
@@ -208,6 +207,7 @@ onBeforeUnmount(() => {
   display: flex;
   flex-direction: column;
   background: $bg;
+  height: 100%;
   .v-md-editor-wrap {
     flex: 1;
     position: relative;

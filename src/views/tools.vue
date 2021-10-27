@@ -31,13 +31,13 @@ interface tool {
 const toolList: tool[] = [
   {
     title: '公众号文章收藏',
-    abstract: '将微信公众号文章收藏到 LeanCloud 数据库。仅文字。',
-    action: 'onImport'
+    abstract: '将微信公众号文章收藏到 LeanCloud 数据库。仅摘要。',
+    action: 'spyWePublic'
   },
   {
     title: '自定义网站收藏',
-    abstract: '将自定义网站文章收藏到 LeanCloud 数据库。仅文字。',
-    action: 'onImport'
+    abstract: '将自定义网站文章收藏到 LeanCloud 数据库。仅摘要。',
+    action: 'spyJuejin'
   },
   {
     title: '导出为 Markdown',
@@ -52,8 +52,12 @@ const toolList: tool[] = [
 ]
 
 const onEdit = (action: string) => {
-  console.log(action + '功能尚未实现，敬请期待')
-  router.push('/tool-spy')
+  // console.log(action + '功能尚未实现，敬请期待')
+  if (action == 'spyJuejin') {
+    router.push('/tool-spy?mode=j')
+  } else {
+    router.push('/tool-spy')
+  }
 }
 </script>
 
