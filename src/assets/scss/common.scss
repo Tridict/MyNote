@@ -1,0 +1,19 @@
+:root {
+  --van-cell-text-color: var(--van-field-label-color);
+  --van-overlay-background-color: rgba(0, 0, 0, 0.3);
+}
+
+* {
+  margin: 0;
+  // padding: 3px;
+  // border: solid 1px red;
+  box-sizing: border-box;
+}
+
+body {
+  background: $bg;
+}
+
+.van-notify {
+  top: $tab-bar-height;
+}
