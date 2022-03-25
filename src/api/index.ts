@@ -29,7 +29,14 @@ interface Headers {
 axios.interceptors.request.use(
   function (config) {
     // 在发送请求之前做些什么
-    const { BASE_URL, appId, key } = store.getLocal('leanCloudKeys')
+    const defaultKeys = {
+      appId: 'Sn7epEpMHrwb8p89cmJsxtTp-gzGzoHsz',
+      key: '1Yoy523hgg3k3PLFjIHlPpwm',
+      BASE_URL: 'https://api.nlpsun.cn'
+    }
+    // const { BASE_URL, appId, key } = defaultKeys
+    const { BASE_URL, appId, key } = store.getLocal('leanCloudKeys') || defaultKeys
+    
 
     const sessionToken = store.get('LcUserInfo')?.sessionToken
 
