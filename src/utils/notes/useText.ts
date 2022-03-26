@@ -224,6 +224,10 @@ export const useText = (mode: Ref<'edit' | 'preview' | 'editable'>) => {
     status.isPinning = false
   }
 
+  const handleInput = (newText: string) => {
+    postInfo.content = newText
+  }
+
   const checkIfSaved = async () => {
     if (postInfo.content == BEGIN_TEXT || postInfo.content == saveText) {
       return true
@@ -290,6 +294,7 @@ export const useText = (mode: Ref<'edit' | 'preview' | 'editable'>) => {
     handleUpdateTags,
     handlePin,
     handlePublic,
+    handleInput,
     saveNote,
     deleteNote,
     importNote,
