@@ -1,5 +1,5 @@
 <template>
-  <div class="editor-wrap">
+  <div class="poster-wrap">
     <van-nav-bar class="nav-bar" title="MyNote">
       <template #left>
         <van-button size="small" @click="handleSave" v-if="isEdit">
@@ -34,21 +34,13 @@
       <ArticleTag :tags="tagList" />
       <van-tag plain @click="showTagManage = true">+</van-tag>
     </div>
-    <div class="v-md-editor-wrap">
+    <div class="editor-wrap">
       <MilkdownEditor
-        class="v-md-editor"
         :defaultText="postInfo.content"
         @input="handleInput"
         v-if="mode === 'preview' && postInfo.content"
       />
-      <textarea class="v-md-editor" v-model="postInfo.content" v-else />
-      <!-- <v-md-editor
-        v-model="postInfo.content"
-        :mode="mode"
-        left-toolbar="undo redo | toc | ul ol quote table link code | clear"
-        right-toolbar=""
-        v-else
-      ></v-md-editor> -->
+      <textarea class="editor" v-model="postInfo.content" v-else />
     </div>
     <van-action-sheet
       v-model:show="showMore"
@@ -218,86 +210,26 @@ onBeforeUnmount(() => {
 </script>
 
 <style lang="scss" scoped>
-.editor-wrap {
+.poster-wrap {
   display: flex;
   flex-direction: column;
   background: $bg;
   height: 100%;
-  .v-md-editor-wrap {
+  .editor-wrap {
     flex: 1;
     position: relative;
-    .v-md-editor {
+    .editor {
       position: absolute;
       top: 0;
       bottom: 0;
       left: 0;
       right: 0;
       overflow: auto;
-      // .v-md-editor__editor-wrapper {
-      // }
     }
   }
   .keyboard {
     width: 100%;
     height: 0;
-  }
-}
-
-@media screen and (max-width: 900px) {
-  :deep().v-md-editor__left-area {
-    &-title {
-      height: 41px !important;
-      line-height: 41px !important;
-    }
-    &-body {
-      text-align: left;
-    }
-  }
-  :deep().v-md-editor__right-area {
-    flex-direction: column-reverse;
-    .v-md-editor__toolbar {
-      // flex-direction: column;
-      // background: #ddd;
-      // position: fixed;
-      // top: auto;
-      // bottom: 0;
-      padding-bottom: calc(6px + constant(safe-area-inset-bottom));
-      padding-bottom: calc(6px + env(safe-area-inset-bottom));
-      // z-index: 100;
-      &-left {
-        flex: 1;
-        flex-wrap: nowrap;
-        overflow-x: auto;
-        overflow-y: hidden;
-        scrollbar-width: none; /* Firefox */
-        -ms-overflow-style: none; /* IE 10+ */
-        &::-webkit-scrollbar {
-          display: none; /* Chrome Safari */
-        }
-      }
-      &-right {
-        margin-left: 0;
-        // display: none;
-      }
-    }
-    .v-md-editor__main {
-      flex-direction: column-reverse;
-      padding-bottom: (69px / 16) rem;
-      .v-md-editor__editor-wrapper {
-        border-top: 1px solid #ddd;
-        border-right: 0;
-      }
-      .v-md-editor__editor-wrapper,
-      .v-md-editor__preview-wrapper {
-        flex: 1;
-      }
-    }
-  }
-  .nav-bar {
-    :deep().van-button--small {
-      width: var(--van-button-small-height);
-      margin: 0.1rem;
-    }
   }
 }
 

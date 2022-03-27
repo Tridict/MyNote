@@ -22,7 +22,7 @@ import { emoji } from '@milkdown/plugin-emoji'
 import { history } from '@milkdown/plugin-history'
 import { indent } from '@milkdown/plugin-indent'
 import { listener, listenerCtx } from '@milkdown/plugin-listener'
-import { math } from '@milkdown/plugin-math'
+// import { math } from '@milkdown/plugin-math'
 import { menu } from '@milkdown/plugin-menu'
 import { prism } from '@milkdown/plugin-prism'
 import { slash } from '@milkdown/plugin-slash'
@@ -66,7 +66,7 @@ const editor = useEditor((root) =>
     .use(cursor)
     .use(prism)
     .use(emoji)
-    .use(math)
+    // .use(math)
     .use(diagram)
     .use(indent)
     .use(slash)
@@ -129,7 +129,16 @@ target.setAttribute('href', isDarkMode.value ? code.dark : code.light)
 </script>
 
 <style lang="scss">
+.milkdown-menu-wrapper {
+  max-width: 72rem;
+  margin: auto;
+}
 .milkdown {
+  overflow: auto;
+  height: calc(100vh - var(--van-nav-bar-height) - 2rem - 1em - 50px); // tag栏2rem+1em；菜单栏50px
+  .editor {
+    margin: auto;
+  }
   .bullet-list {
     list-style: disc;
     padding-left: 2rem;

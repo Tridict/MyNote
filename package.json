@@ -8,7 +8,6 @@
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
-    "@kangc/v-md-editor": "^2.3.10",
     "@milkdown/core": "^5.5.0",
     "@milkdown/plugin-clipboard": "^5.5.0",
     "@milkdown/plugin-cursor": "^5.5.0",
@@ -52,7 +51,6 @@
     "eslint": "^6.7.2",
     "eslint-plugin-prettier": "^3.3.1",
     "eslint-plugin-vue": "^7.0.0",
-    "highlight.js": "^11.2.0",
     "prettier": "^2.2.1",
     "sass": "^1.26.5",
     "sass-loader": "^8.0.2",
