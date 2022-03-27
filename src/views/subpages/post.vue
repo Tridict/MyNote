@@ -36,9 +36,10 @@
     </div>
     <div class="editor-wrap">
       <MilkdownEditor
+        :readonly="mode === 'preview'"
         :defaultText="postInfo.content"
         @input="handleInput"
-        v-if="mode === 'preview' && postInfo.content"
+        v-if="postInfo.content"
       />
       <textarea class="editor" v-model="postInfo.content" v-else />
     </div>
@@ -126,7 +127,7 @@ import ArticleTag from '@/components/common/article-tag.vue'
 import TagManage from '@/components/tag-manage.vue'
 
 const useMode = () => {
-  type Mode = 'edit' | 'preview' | 'editable'
+  type Mode = 'edit' | 'preview'
   const mode = ref<Mode>('preview')
   const isEdit = computed(() => mode.value === 'edit')
   const showPreview = () => {

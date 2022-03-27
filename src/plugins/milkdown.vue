@@ -1,13 +1,19 @@
 <template>
   <!-- <div>
     <input v-model="isDarkMode" /> -->
-    <VueEditor :editor="editor" />
+  <VueEditor :editor="editor" />
   <!-- </div> -->
 </template>
 
 <script setup lang="ts">
-import { defineProps, defineEmits, ref, watch } from 'vue'
-import { Editor, rootCtx, defaultValueCtx, themeManagerCtx } from '@milkdown/core' // 等下个版本才有themeManagerCtx
+import { defineProps, defineEmits, ref, watch, computed } from 'vue'
+import {
+  Editor,
+  rootCtx,
+  defaultValueCtx,
+  editorViewOptionsCtx,
+  themeManagerCtx
+} from '@milkdown/core' // 等下个版本才有themeManagerCtx
 import { VueEditor, useEditor } from '@milkdown/vue'
 
 // optional
@@ -30,6 +36,7 @@ import { tooltipPlugin, tooltip } from '@milkdown/plugin-tooltip'
 
 const props = defineProps<{
   defaultText: string
+  readonly: boolean
 }>()
 
 const emit = defineEmits<{
@@ -45,16 +52,18 @@ const setEditorReady = (isReady: boolean) => {
   editorReady.value = isReady
 }
 
-const editor = useEditor((root) =>
-  editorRef2.value = Editor.make()
+const editor = useEditor((root) => {
+  const editor = Editor.make()
     .config((ctx) => {
       ctx.set(rootCtx, root)
       ctx.set(defaultValueCtx, props.defaultText)
-      ctx.get(listenerCtx)
+      ctx.set(editorViewOptionsCtx, { editable: () => !props.readonly })
+      ctx
+        .get(listenerCtx)
         .markdownUpdated((ctx, markdown, prevMarkdown) => {
           emit('input', markdown)
         })
-        .mounted((ctx)=>{
+        .mounted((ctx) => {
           setEditorReady(true)
         })
     })
@@ -87,10 +96,12 @@ const editor = useEditor((root) =>
       })
     )
     .use(menu())
-)
+  editorRef2.value = editor
+  return editor
+})
 
 const switchDarkMode = () => {
-  if (!editorReady.value) return;
+  if (!editorReady.value) return
   const editor = editorRef2.value
   if (!editor) return
   editor.action((ctx) => {
@@ -102,6 +113,9 @@ const switchDarkMode = () => {
     themeManager.switch(ctx, isDarkMode.value ? nordDark : nordLight)
   })
 }
+
+const menuDisplay = computed(() => (props.readonly ? 'none' : 'flex'))
+const menuHeight = computed(() => (props.readonly ? '0px' : '50px'))
 
 watch(isDarkMode, switchDarkMode)
 
@@ -132,10 +146,15 @@ target.setAttribute('href', isDarkMode.value ? code.dark : code.light)
 .milkdown-menu-wrapper {
   max-width: 72rem;
   margin: auto;
+  .milkdown-menu {
+    display: v-bind(menuDisplay);
+  }
 }
 .milkdown {
   overflow: auto;
-  height: calc(100vh - var(--van-nav-bar-height) - 2rem - 1em - 50px); // tag栏2rem+1em；菜单栏50px
+  height: calc(
+    100vh - var(--van-nav-bar-height) - 1rem - 1em - v-bind(menuHeight)
+  ); // tag栏1rem+1em
   .editor {
     margin: auto;
   }
@@ -146,6 +165,9 @@ target.setAttribute('href', isDarkMode.value ? code.dark : code.light)
   .ordered-list {
     list-style: auto;
     padding-left: 2rem;
+  }
+  .milkdown-qxzvxm::before {
+    display: v-bind(menuDisplay);
   }
 }
 </style>
