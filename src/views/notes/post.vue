@@ -62,7 +62,7 @@
       <!-- 导出 -->
       <a
         class="export-wrap"
-        :download="saveFileName"
+        :download="saveFileName+'.md'"
         :href="getDownloadLink(postInfo.content)"
       >
         <button class="van-action-sheet__item" @click="showMore = false">
@@ -120,11 +120,11 @@ import { ref, onMounted, computed, onBeforeUnmount } from 'vue'
 // import { Notify } from 'vant'
 import { VantFile } from '@/types'
 import { useRouter } from 'vue-router'
-import { useExport } from '@/utils/notes/useExport'
-import { useText } from '@/utils/notes/useText'
-import Icon from '@/components/common/icons/navbar-icon.vue'
-import ArticleTag from '@/components/common/article-tag.vue'
-import TagManage from '@/components/tag-manage.vue'
+import { useExport } from './utils/useExport'
+import { useText } from './utils/useText'
+import Icon from '@/components/icons/navbar-icon.vue'
+import ArticleTag from './components/article-tag.vue'
+import TagManage from './components/tag-manage.vue'
 
 const useMode = () => {
   type Mode = 'edit' | 'preview'

@@ -24,7 +24,7 @@
 
 <script setup lang="ts">
 import { defineProps } from 'vue'
-import { Tag } from '@/utils/notes/useTag'
+import { Tag } from '../utils/useTag'
 
 defineProps<{ tags?: Tag[]; color?: string; mode?: string }>()
 </script>

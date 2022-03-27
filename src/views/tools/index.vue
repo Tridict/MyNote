@@ -16,7 +16,7 @@
 </template>
 
 <script setup lang="ts">
-import Page from '@/components/common/page.vue'
+import Page from '@/components/page.vue'
 // import { Toast } from 'vant'
 import { useRouter } from 'vue-router'
 

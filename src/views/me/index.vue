@@ -21,7 +21,7 @@
 </template>
 
 <script setup lang="ts">
-import Page from '@/components/common/page.vue'
+import Page from '@/components/page.vue'
 import { ref } from '@vue/reactivity'
 import { onMounted } from '@vue/runtime-core'
 import store from '@/utils/stores'

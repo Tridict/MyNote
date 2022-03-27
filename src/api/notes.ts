@@ -3,7 +3,7 @@ import axios from '@/api'
 import qs from 'querystring'
 import store from '@/utils/stores'
 import { Pointer, Query, getUser } from '@/utils/getPointer'
-import { Tag } from '@/utils/notes/useTag'
+import { Tag } from '@/views/notes/utils/useTag'
 
 export interface NoteRes {
   content: string

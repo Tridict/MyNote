@@ -16,7 +16,7 @@
 </template>
 
 <script setup lang="ts">
-import Tabbar from '@/components/common/tabbar.vue'
+import Tabbar from '@/components/tabbar.vue'
 import { defineProps } from 'vue'
 defineProps<{
   title: string

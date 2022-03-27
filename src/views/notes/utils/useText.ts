@@ -9,9 +9,10 @@ import {
 import { useRouter } from 'vue-router'
 import { Dialog, Notify } from 'vant'
 import { decode } from 'js-base64'
+import useFile from './useFile'
+import { getTagsByNote, Tag } from './useTag'
 import { VantFile } from '@/types'
 import store from '@/utils/stores'
-import useFile from '@/utils/notes/useFile'
 import { getQueryParams } from '@/utils/urlQuery'
 import {
   getNote,
@@ -22,7 +23,6 @@ import {
   cancelPublicNote,
   pinnedNote
 } from '@/api/notes'
-import { getTagsByNote, Tag } from '@/utils/notes/useTag'
 
 export const useText = (mode: Ref<'edit' | 'preview' | 'editable'>) => {
   const BEGIN_TEXT = '## 在此编辑您的内容' //记录初始文本，如果没有修改，则不需要保存

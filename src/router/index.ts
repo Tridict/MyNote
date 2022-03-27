@@ -6,7 +6,7 @@ const routes: Array<RouteRecordRaw> = [
     path: '/login',
     name: 'Login',
     component: () =>
-      import(/* webpackChunkName: "login" */ '@/views/login.vue'),
+      import(/* webpackChunkName: "login" */ '@/views/login/index.vue'),
     meta: {
       order: 0,
       transition: 'fade'
@@ -15,7 +15,7 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: '/notes',
     name: 'Notes',
-    component: () => import(/* webpackChunkName: "main" */ '@/views/notes.vue'),
+    component: () => import(/* webpackChunkName: "main" */ '@/views/notes/index.vue'),
     meta: {
       order: 1,
       transition: 'fade',
@@ -26,7 +26,7 @@ const routes: Array<RouteRecordRaw> = [
     path: '/post',
     name: 'Post',
     component: () =>
-      import(/* webpackChunkName: "post" */ '@/views/subpages/post.vue'),
+      import(/* webpackChunkName: "post" */ '@/views/notes/post.vue'),
     meta: {
       order: 11,
       transition: 'slide-left'
@@ -35,7 +35,7 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: '/tools',
     name: 'Tools',
-    component: () => import(/* webpackChunkName: "main" */ '@/views/tools.vue'),
+    component: () => import(/* webpackChunkName: "main" */ '@/views/tools/index.vue'),
     meta: {
       order: 2,
       transition: 'fade'
@@ -45,7 +45,7 @@ const routes: Array<RouteRecordRaw> = [
     path: '/tool-spy',
     name: 'ToolSpy',
     component: () =>
-      import(/* webpackChunkName: "main" */ '@/views/subpages/toolSpy.vue'),
+      import(/* webpackChunkName: "main" */ '@/views/tools/toolSpy.vue'),
     meta: {
       order: 1,
       transition: 'slide-left'
@@ -54,7 +54,7 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: '/me',
     name: 'Me',
-    component: () => import(/* webpackChunkName: "main" */ '@/views/me.vue'),
+    component: () => import(/* webpackChunkName: "main" */ '@/views/me/index.vue'),
     meta: {
       order: 3,
       transition: 'fade'

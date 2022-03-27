@@ -57,7 +57,7 @@ import { Notify } from 'vant'
 import { createNote } from '@/api/notes'
 import { spy, spyJuejin } from '@/api/spy'
 import { getQueryParams } from '@/utils/urlQuery'
-import Icon from '@/components/common/icons/navbar-icon.vue'
+import Icon from '@/components/icons/navbar-icon.vue'
 
 const status = reactive({
   isAnalyzing: false

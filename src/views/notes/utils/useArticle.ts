@@ -4,7 +4,7 @@ import { reactive, ref } from '@vue/reactivity'
 import { onMounted } from '@vue/runtime-core'
 import { decode } from 'js-base64'
 import store from '@/utils/stores'
-import { Tag } from '@/utils/notes/useTag'
+import { Tag } from '@/views/notes/utils/useTag'
 
 export interface Article {
   title: string

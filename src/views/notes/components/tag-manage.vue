@@ -41,8 +41,8 @@
 
 <script setup lang="ts">
 import { defineProps, defineEmits, ref, watch } from 'vue'
-import { useTag, Tag, TAG_COLOR_EXIST } from '@/utils/notes/useTag'
-import ArticleTag from '@/components/common/article-tag.vue'
+import { useTag, Tag, TAG_COLOR_EXIST } from '../utils/useTag'
+import ArticleTag from './article-tag.vue'
 const props =
   defineProps<{ isShow: boolean; postId: string; postTags: Tag[] }>()
 defineEmits(['close'])

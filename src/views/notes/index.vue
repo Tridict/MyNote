@@ -66,10 +66,10 @@
 </template>
 
 <script setup lang="ts">
-import Page from '@/components/common/page.vue'
-import ArticleList from '@/components/article-list.vue'
-import Icon from '@/components/common/icons/navbar-icon.vue'
-import { useArticle } from '@/utils/notes/useArticle'
+import Page from '@/components/page.vue'
+import Icon from '@/components/icons/navbar-icon.vue'
+import ArticleList from './components/article-list.vue'
+import { useArticle } from './utils/useArticle'
 // import { reactive, ref } from 'vue'
 import { Notify } from 'vant'
 

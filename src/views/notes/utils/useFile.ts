@@ -1,4 +1,4 @@
-import readFile from '@/utils/notes/fileReader'
+import readFile from './fileReader'
 import { ref } from 'vue'
 import { Notify } from 'vant'
 import { VantFile } from '@/types'

@@ -40,10 +40,10 @@
 <script setup lang="ts">
 import { defineProps } from 'vue'
 import { useRouter } from 'vue-router'
-import { Article } from '@/utils/notes/useArticle'
 import { useCheckbox } from '@/utils/useCheckbox'
-import ArticleTag from '@/components/common/article-tag.vue'
-import SwipeCell from '@/components/article-swipe-cell.vue'
+import { Article } from '../utils/useArticle'
+import ArticleTag from './article-tag.vue'
+import SwipeCell from './article-swipe-cell.vue'
 
 const props = defineProps<{
   articleList: Article[]
