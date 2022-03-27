@@ -1,7 +1,9 @@
 <template>
   <router-view v-slot="{ Component, route }">
     <transition :name="route.meta.transition">
-      <component :is="Component" />
+      <KeepAlive include="Notes">
+        <component :is="Component" />
+      </KeepAlive>
     </transition>
   </router-view>
 </template>

@@ -65,12 +65,16 @@
   </Page>
 </template>
 
+<script lang="ts">
+export default { name: 'Notes' }
+</script>
+
 <script setup lang="ts">
 import Page from '@/components/page.vue'
 import Icon from '@/components/icons/navbar-icon.vue'
 import ArticleList from './components/article-list.vue'
 import { useArticle } from './utils/useArticle'
-// import { reactive, ref } from 'vue'
+import { onActivated, onDeactivated, ref } from 'vue'
 import { Notify } from 'vant'
 
 const {
@@ -85,10 +89,33 @@ Object.assign(status, {
   isSyncing: false,
   showCheckbox: false
 })
+
+const scrollY = ref(0)
 // const status = reactive({
 //   isSyncing: false,
 //   showCheckbox: false
 // })
+
+const getScrollDom = () => {
+  return document.querySelector('.page-wrap main')
+}
+
+let dom = getScrollDom()
+onActivated(()=>{
+  if (!dom) {
+    dom = getScrollDom()
+  }
+  if (dom) {
+    dom.scrollTop = scrollY.value
+  }
+})
+
+onDeactivated(()=>{
+  if (!dom) {
+    dom = getScrollDom()
+  }
+  scrollY.value = dom?.scrollTop || 0
+})
 
 const handleSync = async () => {
   status.isSyncing = true
