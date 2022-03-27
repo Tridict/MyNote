@@ -157,6 +157,8 @@ target.setAttribute('href', isDarkMode.value ? code.dark : code.light)
   ); // tag栏1rem+1em
   .editor {
     margin: auto;
+    max-width: 57.375rem;
+    padding: 3.125rem 1.25rem!important;
   }
   .bullet-list {
     list-style: disc;
