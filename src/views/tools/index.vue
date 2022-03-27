@@ -59,6 +59,8 @@ const onEdit = (action: string) => {
     router.push('/tool-spy')
   }
 }
+
+document.title="tools - MyNote"
 </script>
 
 <style lang="scss" scoped>

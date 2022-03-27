@@ -101,13 +101,16 @@ const getScrollDom = () => {
 }
 
 let dom = getScrollDom()
-onActivated(()=>{
+onActivated(async()=>{
+  document.title="notes - MyNote"
   if (!dom) {
     dom = getScrollDom()
   }
   if (dom) {
     dom.scrollTop = scrollY.value
   }
+  await handleSync()
+  status.loading = false
 })
 
 onDeactivated(()=>{

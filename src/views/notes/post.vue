@@ -78,6 +78,7 @@
         class="van-action-sheet__item"
         @click="handlePin"
         v-if="postInfo.canWrite"
+        style="display: none"
       >
         <span v-if="postInfo.pinned">取消置顶</span>
         <span v-else>置顶笔记</span>
@@ -88,6 +89,7 @@
         class="van-action-sheet__item"
         @click="handlePublic"
         v-if="postInfo.canWrite"
+        style="display: none"
       >
         <span v-if="postInfo.isPublicRead">取消公开</span>
         <span v-else>
@@ -119,7 +121,7 @@
 
 <script setup lang="ts">
 import MilkdownEditor from '@/plugins/milkdown.vue'
-import { ref, onMounted, computed, onBeforeUnmount } from 'vue'
+import { ref, onMounted, onBeforeUnmount, watch } from 'vue'
 // import { Notify } from 'vant'
 import { VantFile } from '@/types'
 import { useRouter } from 'vue-router'
@@ -199,6 +201,10 @@ onMounted(async () => {
 
 onBeforeUnmount(() => {
   window.onbeforeunload = null
+})
+
+watch(saveFileName, ()=>{
+  document.title=`${saveFileName.value} - MyNote`
 })
 </script>
 

@@ -40,6 +40,8 @@ const logOut = () => {
 }
 
 onMounted(setUsername)
+
+document.title="me - MyNote"
 </script>
 
 <style lang="scss" scoped>

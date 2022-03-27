@@ -127,11 +127,6 @@ const useArticle = () => {
     await initArticleList()
   }
 
-  onMounted(async () => {
-    await initArticleList()
-    status.loading = false
-  })
-
   return {
     status,
     articleList,
