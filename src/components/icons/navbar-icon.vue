@@ -1,5 +1,5 @@
 <template>
-  <van-loading v-if="loading" size="16"/>
+  <van-loading v-if="loading" size="16" />
   <template v-else>
     <template v-if="name === 'back'">
       <svg
@@ -45,11 +45,37 @@
         height="1.2rem"
         viewBox="0 0 24 24"
         v-else
-        name="mdi-note-edit-outline"
+        name="mdi-file-edit-outline"
       >
         <path
-          d="M18.13 12l1.26-1.26c.44-.44 1-.68 1.61-.74V9l-6-6H5c-1.11 0-2 .89-2 2v14a2 2 0 0 0 2 2h6v-1.87l.13-.13H5V5h7v7h6.13M14 4.5l5.5 5.5H14V4.5m5.13 9.33l2.04 2.04L15.04 22H13v-2.04l6.13-6.13m3.72.36l-.98.98l-2.04-2.04l.98-.98c.19-.2.52-.2.72 0l1.32 1.32c.2.2.2.53 0 .72z"
           fill="currentColor"
+          d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4v-2m10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1l-2.1-2.1l1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1l2.1 2.1Z"
+        ></path>
+      </svg>
+    </template>
+    <template v-if="name === 'showCode'">
+      <svg
+        width="1.2rem"
+        height="1.2rem"
+        viewBox="0 0 24 24"
+        v-if="active"
+        name="mdi-file-code-outline"
+      >
+        <path
+          fill="currentColor"
+          d="M14 2H6a2 2 0 0 0-2 2v16c0 1.11.89 2 2 2h12c1.11 0 2-.89 2-2V8l-6-6m4 18H6V4h7v5h5v11m-8.46-4.35l2.09 2.09L10.35 19L7 15.65l3.35-3.35l1.28 1.26l-2.09 2.09m7.46 0L13.65 19l-1.27-1.26l2.09-2.09l-2.09-2.09l1.27-1.26L17 15.65Z"
+        ></path>
+      </svg>
+      <svg
+        width="1.2rem"
+        height="1.2rem"
+        viewBox="0 0 24 24"
+        v-else
+        name="mdi-file-document-outline"
+      >
+        <path
+          fill="currentColor"
+          d="M6 2a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6H6m0 2h7v5h5v11H6V4m2 8v2h8v-2H8m0 4v2h5v-2H8Z"
         ></path>
       </svg>
     </template>
@@ -102,7 +128,14 @@
 import { defineProps } from 'vue'
 
 defineProps<{
-  name: 'back' | 'showMore' | 'showPreview' | 'save' | 'sync' | 'add'
+  name:
+    | 'back'
+    | 'showMore'
+    | 'showPreview'
+    | 'showCode'
+    | 'save'
+    | 'sync'
+    | 'add'
   active?: boolean
   loading?: boolean
 }>()

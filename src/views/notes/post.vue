@@ -10,7 +10,10 @@
         </van-button>
       </template>
       <template #right>
-        <van-button size="small" @click="showPreview" v-if="postInfo.canWrite">
+        <van-button size="small" @click="toggleShowCode" v-if="postInfo.canWrite && isEdit">
+          <Icon name="showCode" :active="mode!=='code'" />
+        </van-button>
+        <van-button size="small" @click="toggleShowPreview" v-if="postInfo.canWrite">
           <Icon name="showPreview" :active="isEdit" />
         </van-button>
         <van-button size="small" @click="showMore = true">
@@ -39,7 +42,7 @@
         :readonly="mode === 'preview'"
         :defaultText="postInfo.content"
         @input="handleInput"
-        v-if="postInfo.content"
+        v-if="postInfo.content && mode !== 'code'"
       />
       <textarea class="editor" v-model="postInfo.content" v-else />
     </div>
@@ -121,27 +124,16 @@ import { ref, onMounted, computed, onBeforeUnmount } from 'vue'
 import { VantFile } from '@/types'
 import { useRouter } from 'vue-router'
 import { useExport } from './utils/useExport'
-import { useText } from './utils/useText'
+import { useText, useMode } from './utils/useText'
 import Icon from '@/components/icons/navbar-icon.vue'
 import ArticleTag from './components/article-tag.vue'
 import TagManage from './components/tag-manage.vue'
-
-const useMode = () => {
-  type Mode = 'edit' | 'preview'
-  const mode = ref<Mode>('preview')
-  const isEdit = computed(() => mode.value === 'edit')
-  const showPreview = () => {
-    mode.value = mode.value === 'edit' ? 'preview' : 'edit'
-  }
-
-  return { mode, isEdit, showPreview }
-}
 
 // const editorHeight = ref('calc(100vh - var(--van-nav-bar-height))')
 const showMore = ref(false)
 // const { editorHeight } = useKeyboard()
 const { getDownloadLink } = useExport()
-const { mode, isEdit, showPreview } = useMode()
+const { mode, isEdit, toggleShowPreview, toggleShowCode } = useMode()
 const {
   status,
   postInfo,

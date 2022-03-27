@@ -23,8 +23,22 @@ import {
   cancelPublicNote,
   pinnedNote
 } from '@/api/notes'
+export type Mode = 'edit' | 'preview' | 'code'
 
-export const useText = (mode: Ref<'edit' | 'preview' | 'editable'>) => {
+export const useMode = () => {
+  const mode = ref<Mode>('preview')
+  const isEdit = computed(() => mode.value !== 'preview')
+  const toggleShowPreview = () => {
+    mode.value = isEdit.value ? 'preview' : 'edit'
+  }
+  const toggleShowCode = () => {
+    mode.value = mode.value === 'edit' ? 'code' : 'edit'
+  }
+
+  return { mode, isEdit, toggleShowPreview, toggleShowCode }
+}
+
+export const useText = (mode: Ref<Mode>) => {
   const BEGIN_TEXT = '## 在此编辑您的内容' //记录初始文本，如果没有修改，则不需要保存
   let saveText = '' //记录上次保存的内容，如果有本地内容未保存，则在退出时候给提示
   let saveTag = '' //记录上次保存的tags，如果有本地内容未保存，则在退出时候保存
