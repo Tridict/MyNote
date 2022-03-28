@@ -10,6 +10,13 @@ import { onMounted } from '@vue/runtime-core'
 
 export const TAG_COLOR_EXIST = '#7232dd'
 
+export interface Tag {
+  id: number // 作为keys用的，不用于objId
+  text: string
+  color?: string
+  objId: string
+}
+
 // 获取某篇笔记的所有标签
 export const getTagsByNote = async (noteId: string) => {
   const res = await queryTagsByNote(noteId)
@@ -21,20 +28,11 @@ export const getTagsByNote = async (noteId: string) => {
     }
   })
 }
-export interface Tag {
-  id: number // 作为keys用的，不用于objId
-  text: string
-  color?: string
-  objId: string
-}
 
-export const useTag = (postId: string) => {
-  const tagList = ref<Tag[]>([])
+// 获取标签列表
+export const useTagList = () => {
   const allTagList = ref<Tag[]>([])
-  const showPopInput = ref(false)
-  const newTagName = ref('')
 
-  // 获取标签列表
   const _getAllTags = async () => {
     const res = await getAllTags()
     allTagList.value = res.results.map((x, idx) => {
@@ -46,9 +44,21 @@ export const useTag = (postId: string) => {
     })
   }
 
+  onMounted(_getAllTags)
+
+  return { allTagList }
+}
+
+export const useTag = (postId: string) => {
+  const tagList = ref<Tag[]>([])
+  const { allTagList } = useTagList()
+  const showPopInput = ref(false)
+  const newTagName = ref('')
+
   // 初始化TagList
   const _init = async () => {
-    await _getAllTags()
+    // 获取标签列表
+    // allTagList.value = await getAllTagList()
   }
 
   // 从TagList中搜索Tag；若存在，return tagObj; 否则，return null

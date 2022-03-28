@@ -1,10 +1,11 @@
 import { queryNotes, getPinnedIds } from '@/api/notes'
 import { NoteRes } from '@/api/notes'
 import { reactive, ref } from '@vue/reactivity'
-import { onMounted } from '@vue/runtime-core'
+// import { onMounted } from '@vue/runtime-core'
 import { decode } from 'js-base64'
 import store from '@/utils/stores'
 import { Tag } from '@/views/notes/utils/useTag'
+import { queryNotesByTag } from '@/api/noteTagMap'
 
 export interface Article {
   title: string
@@ -57,11 +58,14 @@ const getArticleFromNote = (res: NoteRes[]): Article[] => {
 const useArticle = () => {
   const pinnedArticleList = ref<Article[]>()
   const articleList = ref<Article[]>([])
+  const tagArticleList = ref<Article[]>([])
   const status = reactive({
     loading: true,
     loadingMore: false,
     finished: false,
-    error: false
+    error: false,
+    isSyncing: false,
+    showCheckbox: false // 多选
   })
   const pageNum = ref(1)
   const totalPages = ref(1)
@@ -100,6 +104,14 @@ const useArticle = () => {
     }
   }
 
+  // 根据tag id获取文章
+  const getArticleByTag = async (tagId: string): Promise<void> => {
+    const res = await queryNotesByTag(tagId)
+    console.log(res.results)
+    tagArticleList.value = getArticleFromNote(res.results)
+  }
+
+  // 先获取所有置顶文章，然后获取一页非置顶文章
   const initArticleList = async (): Promise<void> => {
     const pinnedIds = await getPinnedIds().then((res) => {
       store.setSession('LcSettingId', res.results[0].objectId)
@@ -131,8 +143,10 @@ const useArticle = () => {
     status,
     articleList,
     pinnedArticleList,
+    tagArticleList,
     getArticleList,
-    getArticlePage
+    getArticlePage,
+    getArticleByTag
   }
 }
 

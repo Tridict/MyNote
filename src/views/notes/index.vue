@@ -34,25 +34,38 @@
           error-text="请求失败，点击重新加载"
           @load="getArticlePage"
         >
-          <!-- 置顶文章 -->
-          <div
-            class="pinned-wrap van-hairline--surround"
-            v-if="pinnedArticleList?.length"
-          >
-            <div class="van-cell-group__title">置顶</div>
-            <ArticleList
-              :articleList="pinnedArticleList"
-              :showCheckbox="status.showCheckbox"
-              :getArticleList="getArticleList"
-            />
+          <!-- 按tag筛选 -->
+          <div>
+            请点击标签筛选笔记：
+            <ArticleByTag @click="getArticleByTag" />
           </div>
-          <!-- 其他文章 -->
           <ArticleList
-            v-if="articleList?.length"
-            :articleList="articleList"
+            v-if="tagArticleList?.length"
+            :articleList="tagArticleList"
             :showCheckbox="status.showCheckbox"
             :getArticleList="getArticleList"
           />
+          <template v-else>
+            <!-- 置顶文章 -->
+            <div
+              class="pinned-wrap van-hairline--surround"
+              v-if="pinnedArticleList?.length"
+            >
+              <div class="van-cell-group__title">置顶</div>
+              <ArticleList
+                :articleList="pinnedArticleList"
+                :showCheckbox="status.showCheckbox"
+                :getArticleList="getArticleList"
+              />
+            </div>
+            <!-- 其他文章 -->
+            <ArticleList
+              v-if="articleList?.length"
+              :articleList="articleList"
+              :showCheckbox="status.showCheckbox"
+              :getArticleList="getArticleList"
+            />
+          </template>
         </van-list>
         <!-- 空状态 -->
         <van-empty v-else description="暂无笔记">
@@ -73,6 +86,7 @@ export default { name: 'Notes' }
 import Page from '@/components/page.vue'
 import Icon from '@/components/icons/navbar-icon.vue'
 import ArticleList from './components/article-list.vue'
+import ArticleByTag from './components/article-by-tag.vue'
 import { useArticle } from './utils/useArticle'
 import { onActivated, onDeactivated, ref } from 'vue'
 import { Notify } from 'vant'
@@ -81,28 +95,21 @@ const {
   status,
   articleList,
   pinnedArticleList,
+  tagArticleList,
   getArticleList,
-  getArticlePage
+  getArticlePage,
+  getArticleByTag
 } = useArticle()
-// 多选
-Object.assign(status, {
-  isSyncing: false,
-  showCheckbox: false
-})
 
 const scrollY = ref(0)
-// const status = reactive({
-//   isSyncing: false,
-//   showCheckbox: false
-// })
 
 const getScrollDom = () => {
   return document.querySelector('.page-wrap main')
 }
 
 let dom = getScrollDom()
-onActivated(async()=>{
-  document.title="notes - MyNote"
+onActivated(async () => {
+  document.title = 'notes - MyNote'
   if (!dom) {
     dom = getScrollDom()
   }
@@ -113,7 +120,7 @@ onActivated(async()=>{
   status.loading = false
 })
 
-onDeactivated(()=>{
+onDeactivated(() => {
   if (!dom) {
     dom = getScrollDom()
   }

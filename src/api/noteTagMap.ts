@@ -61,10 +61,15 @@ export const queryNotesByTag = async (
       }
     })
   })
-  // 从results得到results.tag.objectId
-  const noteList = results.results.map((x) => x.tag.objectId)
-  // console.log(noteList)
-  return queryNotes({ where: JSON.stringify({ objectId: { $in: noteList } }) })
+  // 从results得到results.note.objectId
+  const noteList = results.results.map((x) => x.note.objectId)
+  if (noteList.length) {
+    return queryNotes({
+      where: JSON.stringify({ objectId: { $in: noteList } })
+    })
+  } else {
+    return { results: [] }
+  }
 }
 
 // 查询tag列表（根据noteId）
