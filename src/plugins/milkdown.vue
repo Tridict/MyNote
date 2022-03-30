@@ -43,7 +43,7 @@ const emit = defineEmits<{
   (e: 'input', text: string): void
 }>()
 
-const isDarkMode = ref(true)
+const isDarkMode = ref(false)
 const editorReady = ref(false)
 const editorRef2 = ref<Editor | null>(null)
 // const editorRef = ref<EditorRef>({ get: () => undefined, dom: () => null })
@@ -67,7 +67,14 @@ const editor = useEditor((root) => {
           setEditorReady(true)
         })
     })
-    .use(nordLight)
+
+  // 临时方案
+  if (isDarkMode.value) {
+    editor.use(nordDark)
+  } else {
+    editor.use(nordLight)
+  }
+  editor
     .use(gfm)
     .use(clipboard)
     .use(listener)
@@ -161,11 +168,11 @@ target.setAttribute('href', isDarkMode.value ? code.dark : code.light)
     padding: 3.125rem 1.25rem!important;
   }
   .bullet-list {
-    list-style: disc;
+    list-style-type: disc;
     padding-left: 2rem;
   }
   .ordered-list {
-    list-style: auto;
+    list-style-type: decimal;
     padding-left: 2rem;
   }
   .milkdown-qxzvxm::before {
