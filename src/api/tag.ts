@@ -1,6 +1,6 @@
 import axios from '@/api'
 import qs from 'querystring'
-import { Pointer, Query, getUser } from '@/utils/getPointer'
+import { Pointer, Query, getUser } from '@/api/utils/getPointer'
 
 export interface TagRes {
   tagName: string
