@@ -58,7 +58,7 @@ const getArticleFromNote = (res: NoteRes[]): Article[] => {
 const useArticle = () => {
   const pinnedArticleList = ref<Article[]>()
   const articleList = ref<Article[]>([])
-  const tagArticleList = ref<Article[]>([])
+  const tagArticleList = ref<Article[]>()
   const status = reactive({
     loading: true,
     loadingMore: false,
@@ -106,9 +106,12 @@ const useArticle = () => {
 
   // 根据tag id获取文章
   const getArticleByTag = async (tagId: string): Promise<void> => {
-    const res = await queryNotesByTag(tagId)
-    console.log(res.results)
-    tagArticleList.value = getArticleFromNote(res.results)
+    if (tagId) {
+      const res = await queryNotesByTag(tagId)
+      tagArticleList.value = getArticleFromNote(res.results)
+    } else {
+      tagArticleList.value = undefined
+    }
   }
 
   // 先获取所有置顶文章，然后获取一页非置顶文章

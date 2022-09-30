@@ -44,7 +44,7 @@ export const useTagList = () => {
     })
   }
 
-  onMounted(_getAllTags)
+  _getAllTags()
 
   return { allTagList }
 }

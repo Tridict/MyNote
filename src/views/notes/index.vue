@@ -35,16 +35,16 @@
           @load="getArticlePage"
         >
           <!-- 按tag筛选 -->
-          <div>
-            请点击标签筛选笔记：
-            <ArticleByTag @click="getArticleByTag" />
-          </div>
-          <ArticleList
-            v-if="tagArticleList?.length"
-            :articleList="tagArticleList"
-            :showCheckbox="status.showCheckbox"
-            :getArticleList="getArticleList"
-          />
+          <ArticleByTag @click="getArticleByTag" />
+          <template v-if="tagArticleList">
+            <ArticleList
+              v-if="tagArticleList.length"
+              :articleList="tagArticleList"
+              :showCheckbox="status.showCheckbox"
+              :getArticleList="getArticleList"
+            />
+            <van-empty v-else description="该标签底下暂无笔记"></van-empty>
+          </template>
           <template v-else>
             <!-- 置顶文章 -->
             <div
