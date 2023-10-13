@@ -7,8 +7,8 @@
       name="viewport"
       content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover"
     />
-    <link rel="icon" href="<%= BASE_URL %>favicon.ico" />
-    <title><%= htmlWebpackPlugin.options.title %></title>
+    <link rel="icon" href="/favicon.ico" />
+    <title>MyNote</title>
     <link
       rel="stylesheet"
       href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400;500;700;900&display=swap"
@@ -21,17 +21,12 @@
     />
   </head>
   <body>
-    <noscript>
-      <strong>
-        We're sorry but <%= htmlWebpackPlugin.options.title %> doesn't work
-        properly without JavaScript enabled. Please enable it to continue.
-      </strong>
-    </noscript>
     <div id="app"></div>
     <!-- <script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
 
     <script src="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.js"></script> -->
 
+    <script type="module" src="/src/main.ts"></script>
     <script src="//cdn.bootcdn.net/ajax/libs/eruda/2.3.3/eruda.js"></script>
     <script defer>
       eruda.init()
